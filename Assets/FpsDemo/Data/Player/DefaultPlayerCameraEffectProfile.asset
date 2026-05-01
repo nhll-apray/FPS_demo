@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a5d7143371f48d0b6c858c3642eaed9, type: 3}
+  m_Name: DefaultPlayerCameraEffectProfile
+  m_EditorClassIdentifier: 
+  minLandingSpeed: 2
+  heavyLandingSpeed: 12
+  smallLandingShake:
+    duration: 0.11
+    posDown: 0.02
+    pitchDown: 0.3
+    roll: 0.1
+    shakeFrequency: 10
+    shakePitch: 0.04
+    shakeRoll: 0.025
+  heavyLandingShake:
+    duration: 0.2
+    posDown: 0.12
+    pitchDown: 1.6
+    roll: 0.35
+    shakeFrequency: 10
+    shakePitch: 0.25
+    shakeRoll: 0.16
+  moveTiltAngle: 0.3
+  moveTiltSpeed: 4
