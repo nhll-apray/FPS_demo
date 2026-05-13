@@ -1,8 +1,9 @@
+using FpsDemo.Combat;
 using UnityEngine;
 
 namespace FpsDemo.Player
 {
-    public class PlayerCameraController : MonoBehaviour
+    public class PlayerCameraController : MonoBehaviour, IAimProvider
     {
         public Camera playerCamera;
 
@@ -17,11 +18,12 @@ namespace FpsDemo.Player
         public float sensitivityY = 1.5f;
     
         private const float MaxLookAngle = 90f;
-    
 
         private float _cameraPitch = 0f;
     
         private Vector3 _baseCameraPos;
+
+        public Ray GetAimRay() => playerCamera != null ? playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)) : new Ray();
 
         private void Awake()
         {

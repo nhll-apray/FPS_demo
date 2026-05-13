@@ -10,9 +10,9 @@ namespace FpsDemo.Combat
     }
     public readonly struct DamageInfo
     {
-        public readonly float damage;
+        public readonly int damage;
 
-        public DamageInfo(float damage)
+        public DamageInfo(int damage)
         {
             this.damage = damage;
         }

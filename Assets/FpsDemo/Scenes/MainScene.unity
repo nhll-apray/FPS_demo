@@ -2224,7 +2224,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 119
+    m_Bits: 375
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -2631,6 +2631,8 @@ GameObject:
   - component: {fileID: 513814120}
   - component: {fileID: 513814117}
   - component: {fileID: 513814122}
+  - component: {fileID: 513814123}
+  - component: {fileID: 513814124}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2758,6 +2760,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHealth>k__BackingField: 0
+  _currentHealth: 0
+--- !u!114 &513814123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513814114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc9c86a9b0924a188efb301cdddcc22c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentWeapon: {fileID: 95187860336784599}
+--- !u!114 &513814124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513814114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00e6dfdf07195fa4bad6c309c1849ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &539149403
 Mesh:
   m_ObjectHideFlags: 0
@@ -4124,6 +4152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHealth>k__BackingField: 100
+  _currentHealth: 0
 --- !u!136 &1182318663
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7642,7 +7671,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   muzzle: {fileID: 0}
-  weaponData: {fileID: 0}
+  currentAmmo: 0
+  weaponData: {fileID: 11400000, guid: 3e2662b9e017f7d4ab535bb82927741b, type: 2}
 --- !u!108 &108847465377514796
 Light:
   m_ObjectHideFlags: 0
