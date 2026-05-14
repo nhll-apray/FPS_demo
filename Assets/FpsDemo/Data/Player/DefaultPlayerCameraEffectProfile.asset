@@ -15,20 +15,20 @@ MonoBehaviour:
   minLandingSpeed: 2
   heavyLandingSpeed: 12
   smallLandingShake:
-    duration: 0.11
+    duration: 0.2
     posDown: 0.02
     pitchDown: 0.3
     roll: 0.1
-    shakeFrequency: 10
-    shakePitch: 0.04
-    shakeRoll: 0.025
+    shakeFrequency: 7
+    shakePitch: 0.15
+    shakeRoll: 0.2
   heavyLandingShake:
-    duration: 0.2
+    duration: 0.25
     posDown: 0.12
     pitchDown: 1.6
     roll: 0.35
-    shakeFrequency: 10
-    shakePitch: 0.25
-    shakeRoll: 0.16
+    shakeFrequency: 7
+    shakePitch: 0.4
+    shakeRoll: 0.4
   moveTiltAngle: 0.3
   moveTiltSpeed: 4

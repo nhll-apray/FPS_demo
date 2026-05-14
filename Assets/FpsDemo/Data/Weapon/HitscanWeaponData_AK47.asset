@@ -18,5 +18,5 @@ MonoBehaviour:
   critDamage: 50
   reloadTime: 2.5
   range: 100
-  fireInterval: 0.17
-  shootSound: {fileID: 8300000, guid: 38b450e2adcb6f542acc8c1d423bd8dc, type: 3}
+  fireInterval: 0.10794
+  shootSound: {fileID: 8300000, guid: 4642611a45d7eff45bd9f81e991b9038, type: 3}
