@@ -1,0 +1,76 @@
+﻿using System;
+using UnityEngine;
+
+namespace FpsDemo.Weapon
+{
+    public class HitscanWeaponAnimator : MonoBehaviour
+    {
+        private Animator _animator;
+        private HitscanWeapon _hitscanWeapon;
+        
+        private static readonly int TriggerFire = Animator.StringToHash("Fire");
+        private static readonly int TriggerReload = Animator.StringToHash("Reload");
+        private static readonly int BoolIsFiring = Animator.StringToHash("IsFiring");
+        private static readonly int BoolIsReloading = Animator.StringToHash("IsReloading");
+        private static readonly int IntMoveState = Animator.StringToHash("IntMoveState");
+        private static readonly int FloatReloadSpeed = Animator.StringToHash("ReloadSpeed");
+        private static readonly int FloatFireSpeed = Animator.StringToHash("FireSpeed");
+        
+        [SerializeField] private AnimationClip reloadClip;
+        [SerializeField] private AnimationClip fireClip;
+        
+
+        private float _reloadSpeed;
+        private float _fireSpeed;
+        
+        
+
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+            _hitscanWeapon = GetComponent<HitscanWeapon>();
+            _reloadSpeed = reloadClip.length / _hitscanWeapon.hitscanWeaponData.ReloadDuration;
+            _fireSpeed = fireClip.length / _hitscanWeapon.hitscanWeaponData.FireInterval;
+        }
+
+        private void OnEnable()
+        {
+            _hitscanWeapon.OnFiredStarted += OnFiredStarted;
+            _hitscanWeapon.OnFiredStoped += OnFiredStoped;
+            _hitscanWeapon.OnReloadStarted += OnReloadStarted;
+            _hitscanWeapon.OnReloadFinished += OnReloadFinished;
+            _animator.SetFloat(FloatReloadSpeed, _reloadSpeed);
+            _animator.SetFloat(FloatFireSpeed, _fireSpeed);
+        }
+
+        private void OnDisable()
+        {
+            _hitscanWeapon.OnFiredStarted -= OnFiredStarted;
+            _hitscanWeapon.OnFiredStoped -= OnFiredStoped;
+            _hitscanWeapon.OnReloadStarted -= OnReloadStarted;
+            _hitscanWeapon.OnReloadFinished -= OnReloadFinished;
+        }
+        
+        private void OnFiredStarted()
+        {
+            _animator.SetTrigger(TriggerFire);
+            _animator.SetBool(BoolIsFiring, true);
+        }
+
+        private void OnFiredStoped()
+        {
+            _animator.SetBool(BoolIsFiring, false);
+        }
+        
+        private void OnReloadStarted()
+        {
+            _animator.SetTrigger(TriggerReload);
+            _animator.SetBool(BoolIsReloading, true);
+        }
+
+        private void OnReloadFinished()
+        {
+            _animator.SetBool(BoolIsReloading, false);
+        }
+    }
+}

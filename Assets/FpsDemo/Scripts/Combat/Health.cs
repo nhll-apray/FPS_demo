@@ -16,30 +16,19 @@ namespace FpsDemo.Combat
             private set
             {
                 int healthAfter = Mathf.Clamp(value, 0, MaxHealth);
-                onHealthChanged(healthAfter, MaxHealth);
+                OnHealthChanged?.Invoke(healthAfter, MaxHealth);
                 currentHealth = healthAfter;
                 if (currentHealth <= 0)
                 {
-                    died.Invoke();
+                    OnDied?.Invoke();
                 }
             }
         }
         
         public bool IsDead => CurrentHealth <= 0;
         
-        public Action<int, int> onHealthChanged;
-        public Action damaged;
-        public Action died;
-
-        private void Awake()
-        {
-
-        }
-
-        private void OnDestroy()
-        {
-
-        }
+        public event Action<int, int> OnHealthChanged;
+        public event Action OnDied;
 
         public DamageResult TakeDamage(DamageInfo damageInfo)
         {

@@ -18,7 +18,7 @@ namespace FpsDemo.Enemy
 
         private void OnEnable()
         {
-            _health.died += Die;
+            _health.OnDied += Die;
         }
         
         private void Die()

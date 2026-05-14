@@ -16,7 +16,8 @@ MonoBehaviour:
   maxAmmo: 30
   damage: 10
   critDamage: 50
-  reloadTime: 2.5
+  reloadDuration: 2
   range: 100
   fireInterval: 0.10794
   shootSound: {fileID: 8300000, guid: 38b450e2adcb6f542acc8c1d423bd8dc, type: 3}
+  reloadSound: {fileID: 8300000, guid: 5b907074256e36d41b92e89fb0790633, type: 3}

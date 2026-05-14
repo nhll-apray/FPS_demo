@@ -89,8 +89,8 @@ namespace FpsDemo.Enemy
             if (health == null)
                 return;
 
-            health.onHealthChanged += OnHealthChanged;
-            health.died += OnDied;
+            health.OnHealthChanged += OnHealthChanged;
+            health.OnDied += OnDied;
 
             _lastHealth = health.CurrentHealth;
             RefreshHealthBar(health.CurrentHealth, health.MaxHealth);
@@ -101,8 +101,8 @@ namespace FpsDemo.Enemy
             if (health == null)
                 return;
 
-            health.onHealthChanged -= OnHealthChanged;
-            health.died -= OnDied;
+            health.OnHealthChanged -= OnHealthChanged;
+            health.OnDied -= OnDied;
         }
 
         private void LateUpdate()

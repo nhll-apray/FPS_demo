@@ -9,6 +9,8 @@ namespace FpsDemo.Player
     {
         private PlayerInputReader _playerInputReader;
         private CharacterController _characterController;
+
+        public bool IsWalking => _playerInputReader.MoveInput != Vector2.zero && CurrentGround.isGrounded;
     
         [Header("地面移动")]
         public float walkSpeed = 7f;
