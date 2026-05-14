@@ -40,7 +40,7 @@ namespace FpsDemo.Player
             public Vector3 normal;
             public float distanceToGround;
         
-            public static GroundInfo InAir => new GroundInfo
+            public static GroundInfo InAir = new GroundInfo
             {
                 isGrounded = false, 
                 normal = Vector3.up, 

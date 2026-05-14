@@ -20,11 +20,7 @@ namespace FpsDemo.Enemy
         
         [SerializeField] private float visibleDurationAfterDamage = 3f;
         [SerializeField] private float maxVisibleDistance = 60f;
-        [SerializeField] private bool hideWhenDead = true;
-        [SerializeField] private bool hideWhenOffscreen = true;
         
-        [SerializeField] private Vector3 worldOffset = Vector3.zero;
-        [SerializeField] private float bottomGapPixels = 8f;
         
         [SerializeField] private float desiredScreenHeightPixels = 100f;
         
@@ -111,12 +107,11 @@ namespace FpsDemo.Enemy
         {
             if (playerCamera == null || followTarget == null)
                 return;
+            
 
-            Vector3 anchorPosition = followTarget.position + worldOffset;
+            float distance = Vector3.Distance(playerCamera.transform.position, followTarget.position);
 
-            float distance = Vector3.Distance(playerCamera.transform.position, anchorPosition);
-
-            UpdatePosition(anchorPosition, distance);
+            UpdatePosition(followTarget.position);
             UpdateRotation();
             UpdateScale(distance);
             UpdateVisibility(distance);
@@ -138,8 +133,7 @@ namespace FpsDemo.Enemy
 
         private void OnDied()
         {
-            if (hideWhenDead)
-                HideImmediate();
+            HideImmediate();
         }
 
         private void RefreshHealthBar(int currentHealth, int maxHealth)
@@ -164,11 +158,9 @@ namespace FpsDemo.Enemy
             SetVisible(false);
         }
 
-        private void UpdatePosition(Vector3 anchorPosition, float distance)
+        private void UpdatePosition(Vector3 anchorPosition)
         {
-            float gapWorld = ScreenPixelsToWorldHeight(distance, bottomGapPixels);
-
-            transform.position = anchorPosition + Vector3.up * gapWorld;
+            transform.position = anchorPosition;
         }
 
         private void UpdateRotation()
@@ -227,7 +219,7 @@ namespace FpsDemo.Enemy
 
         private void UpdateVisibility(float distance)
         {
-            if (health != null && health.IsDead && hideWhenDead)
+            if (health != null && health.IsDead)
             {
                 SetVisible(false);
                 return;
@@ -239,28 +231,9 @@ namespace FpsDemo.Enemy
                 return;
             }
 
-            if (hideWhenOffscreen && IsOffscreen())
-            {
-                SetVisible(false);
-                return;
-            }
-
             bool shouldShowBecauseRecentlyDamaged = _visibleUntilTime > 0f && Time.time <= _visibleUntilTime;
 
             SetVisible(shouldShowBecauseRecentlyDamaged);
-        }
-
-        private bool IsOffscreen()
-        {
-            Vector3 viewportPosition = playerCamera.WorldToViewportPoint(transform.position);
-
-            if (viewportPosition.z <= 0f)
-                return true;
-
-            return viewportPosition.x < 0f ||
-                   viewportPosition.x > 1f ||
-                   viewportPosition.y < 0f ||
-                   viewportPosition.y > 1f;
         }
 
         private void SetVisible(bool visible)
@@ -280,8 +253,7 @@ namespace FpsDemo.Enemy
         {
             if (target == null)
                 return;
-
-            // 防止误把挂着 EnemyNameplate 的根物体关掉。
+            
             if (target == gameObject)
                 return;
 

@@ -56,8 +56,7 @@ namespace FpsDemo.Weapon
         private void Fire()
         {
             currentAmmo--;
-            audioSource.clip = weaponData.ShootSound;
-            audioSource.Play();
+            audioSource.PlayOneShot(weaponData.ShootSound);
             
             GameObject aimTarget = GetAimTarget();
             if (aimTarget != null)
@@ -65,7 +64,7 @@ namespace FpsDemo.Weapon
                 IDamageable damageable = aimTarget.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
-                    damageable.TakeDamage(new DamageInfo(weaponData.Damage));
+                    DamageSystem.ApplyDamage(damageable, new DamageInfo(weaponData.Damage, owner));
                 }
             }
         }

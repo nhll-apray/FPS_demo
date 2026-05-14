@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace FpsDemo.Combat
 {
@@ -34,21 +33,37 @@ namespace FpsDemo.Combat
 
         private void Awake()
         {
-
+            died += Die;
         }
 
-        public void TakeDamage(DamageInfo damageInfo)
+        private void OnDestroy()
         {
+            died -= Die;
+        }
+
+        public DamageResult TakeDamage(DamageInfo damageInfo)
+        {
+            if (IsDead)
+                return DamageResult.None;
+            int healthBefore = CurrentHealth;
             CurrentHealth -= damageInfo.damage;
+            int damage = Math.Max(0, healthBefore - CurrentHealth) ;
+            DamageResult damageResult = new DamageResult(damage, damageInfo.attacker, gameObject, IsDead);
             if (CurrentHealth <= 0)
             {
-                Die();
+                died.Invoke();
             }
+            return damageResult;
         }
 
         private void Die()
         {
-            Destroy(gameObject);
+            died.Invoke();
+        }
+
+        public void ResetHealth()
+        {
+            currentHealth = MaxHealth;
         }
     }
 }
