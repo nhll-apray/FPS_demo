@@ -115,7 +115,7 @@ namespace FpsDemo.Weapon
                 IDamageable damageable = aimTarget.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
-                    DamageSystem.ApplyDamage(damageable, new DamageInfo(hitscanWeaponData.Damage, owner));
+                    DamageSystem.ApplyDamage(damageable, new DamageInfo(hitscanWeaponData.Damage, Owner));
                 }
             }
         }

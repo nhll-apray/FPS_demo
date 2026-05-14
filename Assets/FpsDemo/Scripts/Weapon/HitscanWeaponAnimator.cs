@@ -1,4 +1,5 @@
 ﻿using System;
+using FpsDemo.Player;
 using UnityEngine;
 
 namespace FpsDemo.Weapon
@@ -7,12 +8,13 @@ namespace FpsDemo.Weapon
     {
         private Animator _animator;
         private HitscanWeapon _hitscanWeapon;
+        private PlayerMovement _playerMovement;
         
         private static readonly int TriggerFire = Animator.StringToHash("Fire");
         private static readonly int TriggerReload = Animator.StringToHash("Reload");
         private static readonly int BoolIsFiring = Animator.StringToHash("IsFiring");
         private static readonly int BoolIsReloading = Animator.StringToHash("IsReloading");
-        private static readonly int IntMoveState = Animator.StringToHash("IntMoveState");
+        private static readonly int IntMoveState = Animator.StringToHash("MoveState");
         private static readonly int FloatReloadSpeed = Animator.StringToHash("ReloadSpeed");
         private static readonly int FloatFireSpeed = Animator.StringToHash("FireSpeed");
         
@@ -50,7 +52,26 @@ namespace FpsDemo.Weapon
             _hitscanWeapon.OnReloadStarted -= OnReloadStarted;
             _hitscanWeapon.OnReloadFinished -= OnReloadFinished;
         }
-        
+
+        private void Update()
+        {
+            if (_hitscanWeapon.Owner != null && _playerMovement == null)
+            {
+                _playerMovement = _hitscanWeapon.Owner.GetComponent<PlayerMovement>();
+            }
+            if (_playerMovement != null)
+            {
+                if (_playerMovement.IsWalking)
+                {
+                    _animator.SetInteger(IntMoveState, 1);
+                }
+                else
+                {
+                    _animator.SetInteger(IntMoveState, 0);
+                }
+            }
+        }
+
         private void OnFiredStarted()
         {
             _animator.SetTrigger(TriggerFire);

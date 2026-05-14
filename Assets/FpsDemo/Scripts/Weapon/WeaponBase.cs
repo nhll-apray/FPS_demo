@@ -11,7 +11,7 @@ namespace FpsDemo.Weapon
         
         protected Animator animator;
         protected AudioSource audioSource;
-        protected GameObject owner;
+        public GameObject Owner { get; private set; }
         protected IAimProvider aimProvider;
         
         [SerializeField]
@@ -32,13 +32,13 @@ namespace FpsDemo.Weapon
 
         public virtual void StartFire()
         {
-            if (owner == null || aimProvider == null) return;
+            if (Owner == null || aimProvider == null) return;
             Debug.Log("StartFire");
         }
 
         public virtual void StopFire()
         {
-            if (owner == null || aimProvider == null) return;
+            if (Owner == null || aimProvider == null) return;
             Debug.Log("StopFire");
         }
         
@@ -53,7 +53,7 @@ namespace FpsDemo.Weapon
 
         public void SetOwnerInfo(GameObject go, IAimProvider ap)
         {
-            owner = go;
+            Owner = go;
             aimProvider = ap;
         }
     }
