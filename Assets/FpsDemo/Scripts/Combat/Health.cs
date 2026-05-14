@@ -33,12 +33,12 @@ namespace FpsDemo.Combat
 
         private void Awake()
         {
-            died += Die;
+
         }
 
         private void OnDestroy()
         {
-            died -= Die;
+
         }
 
         public DamageResult TakeDamage(DamageInfo damageInfo)
@@ -49,17 +49,9 @@ namespace FpsDemo.Combat
             CurrentHealth -= damageInfo.damage;
             int damage = Math.Max(0, healthBefore - CurrentHealth) ;
             DamageResult damageResult = new DamageResult(damage, damageInfo.attacker, gameObject, IsDead);
-            if (CurrentHealth <= 0)
-            {
-                died.Invoke();
-            }
             return damageResult;
         }
-
-        private void Die()
-        {
-            died.Invoke();
-        }
+        
 
         public void ResetHealth()
         {

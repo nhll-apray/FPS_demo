@@ -23,16 +23,8 @@ namespace FpsDemo.Enemy
         
         private void Die()
         {
-            StartCoroutine(RespawnRoutine());
+            Destroy(gameObject);
         }
-
-        private IEnumerator RespawnRoutine()
-        {
-            gameObject.SetActive(false);
-            yield return new WaitForSeconds(RespawnDelay);
-            transform.position = Vector3.zero;
-            _health.ResetHealth();
-            gameObject.SetActive(true);
-        }
+        
     }
 }

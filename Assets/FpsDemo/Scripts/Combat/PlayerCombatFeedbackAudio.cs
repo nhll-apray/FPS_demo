@@ -9,8 +9,6 @@ namespace FpsDemo.Combat
         [SerializeField] private AudioClip hitSound;
         [SerializeField] private AudioClip headshotSound;
         [SerializeField] private AudioClip killSound;
-        
-        [SerializeField] private bool headshotSoundOverridesHitSound = true;
 
         private void Awake()
         {
@@ -55,12 +53,8 @@ namespace FpsDemo.Combat
             if (result.isHeadshot && headshotSound != null)
             {
                 audioSource.PlayOneShot(headshotSound);
-
-                if (headshotSoundOverridesHitSound)
-                    return;
             }
-
-            if (hitSound != null)
+            else if (hitSound != null)
             {
                 audioSource.PlayOneShot(hitSound);
             }

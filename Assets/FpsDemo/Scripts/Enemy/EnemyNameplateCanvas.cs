@@ -14,23 +14,27 @@ namespace FpsDemo.Enemy
         [SerializeField] private Image fillImage;
         [SerializeField] private TMP_Text nameText;
 
-        [SerializeField] private GameObject healthBarRoot;
-        
         [SerializeField] private string displayName = "Enemy";
-        
-        [SerializeField] private float visibleDurationAfterDamage = 3f;
+
+        [SerializeField] private float visibleDurationAfterDamage = 10f;
+
         [SerializeField] private float maxVisibleDistance = 60f;
-        
+
+
+        [SerializeField] private float bottomGapPixels = 8f;
+
+        [SerializeField] private bool controlScreenSize = true;
         
         [SerializeField] private float desiredScreenHeightPixels = 100f;
         
         [SerializeField] private float constantSizeDistance = 20f;
         
         [SerializeField] private float minScreenHeightPixels = 28f;
-        [SerializeField] private float farShrinkPower = 0.25f;
+        
+        [SerializeField] private float farShrinkPower = 0.5f;
 
         private RectTransform _rectTransform;
-        private float _referenceRectHeight;
+        private float _referenceRectHeight = 1f;
         private float _visibleUntilTime = -1f;
         private int _lastHealth;
 
@@ -49,26 +53,18 @@ namespace FpsDemo.Enemy
 
             if (canvasGroup == null)
                 canvasGroup = GetComponent<CanvasGroup>();
-            
-            
+
             if (nameText != null)
                 nameText.text = displayName;
 
             if (_rectTransform != null)
             {
-                _referenceRectHeight = Mathf.Max(1f, _rectTransform.rect.height);
-
-                // 建议根节点 pivot 使用底部中心，避免缩放时 UI 往下压到敌人模型。
                 _rectTransform.pivot = new Vector2(0.5f, 0f);
-            }
-            else
-            {
-                _referenceRectHeight = 1f;
+                CacheReferenceRectHeight();
             }
 
             if (fillImage != null)
             {
-                // 防止 Fill Image 忘记设置成 Filled。
                 fillImage.type = Image.Type.Filled;
                 fillImage.fillMethod = Image.FillMethod.Horizontal;
                 fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
@@ -83,6 +79,11 @@ namespace FpsDemo.Enemy
             HideImmediate();
         }
 
+        private void Start()
+        {
+            CacheReferenceRectHeight();
+        }
+
         private void OnEnable()
         {
             if (health == null)
@@ -91,6 +92,7 @@ namespace FpsDemo.Enemy
             health.onHealthChanged += OnHealthChanged;
             health.died += OnDied;
 
+            _lastHealth = health.CurrentHealth;
             RefreshHealthBar(health.CurrentHealth, health.MaxHealth);
         }
 
@@ -107,13 +109,17 @@ namespace FpsDemo.Enemy
         {
             if (playerCamera == null || followTarget == null)
                 return;
-            
 
-            float distance = Vector3.Distance(playerCamera.transform.position, followTarget.position);
+            Vector3 anchorPosition = followTarget.position;
 
-            UpdatePosition(followTarget.position);
-            UpdateRotation();
+            float distance = Vector3.Distance(
+                playerCamera.transform.position,
+                anchorPosition
+            );
+
             UpdateScale(distance);
+            UpdatePosition(anchorPosition, distance);
+            UpdateRotation();
             UpdateVisibility(distance);
         }
 
@@ -124,9 +130,7 @@ namespace FpsDemo.Enemy
             bool tookDamage = currentHealth < _lastHealth;
 
             if (tookDamage && currentHealth > 0)
-            {
                 ShowForDuration();
-            }
 
             _lastHealth = currentHealth;
         }
@@ -141,7 +145,9 @@ namespace FpsDemo.Enemy
             if (fillImage == null)
                 return;
 
-            float normalized = maxHealth <= 0 ? 0f : (float)currentHealth / maxHealth;
+            float normalized = maxHealth <= 0
+                ? 0f
+                : (float)currentHealth / maxHealth;
 
             fillImage.fillAmount = Mathf.Clamp01(normalized);
         }
@@ -158,14 +164,16 @@ namespace FpsDemo.Enemy
             SetVisible(false);
         }
 
-        private void UpdatePosition(Vector3 anchorPosition)
+        private void UpdatePosition(Vector3 anchorPosition, float distance)
         {
-            transform.position = anchorPosition;
+            float gapWorld = ScreenPixelsToWorldHeight(distance, bottomGapPixels);
+            transform.position = anchorPosition + Vector3.up * gapWorld;
         }
 
         private void UpdateRotation()
         {
             Vector3 directionToNameplate = transform.position - playerCamera.transform.position;
+            
             directionToNameplate.y = 0f;
 
             if (directionToNameplate.sqrMagnitude <= 0.0001f)
@@ -178,9 +186,15 @@ namespace FpsDemo.Enemy
 
         private void UpdateScale(float distance)
         {
+            if (!controlScreenSize)
+                return;
+
             float targetScreenHeightPixels = GetTargetScreenHeightPixels(distance);
 
-            float desiredWorldHeight = ScreenPixelsToWorldHeight(distance, targetScreenHeightPixels);
+            float desiredWorldHeight = ScreenPixelsToWorldHeight(
+                distance,
+                targetScreenHeightPixels
+            );
 
             float scale = desiredWorldHeight / _referenceRectHeight;
 
@@ -194,7 +208,10 @@ namespace FpsDemo.Enemy
             if (distance <= startDistance)
                 return desiredScreenHeightPixels;
 
-            float shrinkFactor = Mathf.Pow(startDistance / distance, farShrinkPower);
+            float shrinkFactor = Mathf.Pow(
+                startDistance / Mathf.Max(distance, 0.01f),
+                farShrinkPower
+            );
 
             float targetPixels = desiredScreenHeightPixels * shrinkFactor;
 
@@ -203,8 +220,10 @@ namespace FpsDemo.Enemy
 
         private float ScreenPixelsToWorldHeight(float distance, float pixels)
         {
-            if (Screen.height <= 0)
+            if (playerCamera == null || Screen.height <= 0)
                 return 0f;
+
+            distance = Mathf.Max(distance, 0.01f);
 
             if (playerCamera.orthographic)
             {
@@ -212,7 +231,8 @@ namespace FpsDemo.Enemy
                 return worldScreenHeight * pixels / Screen.height;
             }
 
-            float worldScreenHeightAtDistance = 2f * distance * Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            float worldScreenHeightAtDistance =
+                2f * distance * Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
 
             return worldScreenHeightAtDistance * pixels / Screen.height;
         }
@@ -231,34 +251,49 @@ namespace FpsDemo.Enemy
                 return;
             }
 
-            bool shouldShowBecauseRecentlyDamaged = _visibleUntilTime > 0f && Time.time <= _visibleUntilTime;
+            bool shouldShowBecauseRecentlyDamaged =
+                _visibleUntilTime > 0f && Time.time <= _visibleUntilTime;
 
             SetVisible(shouldShowBecauseRecentlyDamaged);
         }
 
-        private void SetVisible(bool visible)
+        private bool IsOffscreen()
         {
-            if (canvasGroup != null)
-            {
-                canvasGroup.alpha = visible ? 1f : 0f;
-                canvasGroup.interactable = false;
-                canvasGroup.blocksRaycasts = false;
-            }
+            if (playerCamera == null)
+                return true;
 
-            SetActiveIfNeeded(healthBarRoot, visible);
-            SetActiveIfNeeded(nameText.gameObject, visible);
+            Vector3 viewportPosition = playerCamera.WorldToViewportPoint(transform.position);
+
+            if (viewportPosition.z <= 0f)
+                return true;
+
+            return viewportPosition.x < 0f ||
+                   viewportPosition.x > 1f ||
+                   viewportPosition.y < 0f ||
+                   viewportPosition.y > 1f;
         }
 
-        private void SetActiveIfNeeded(GameObject target, bool active)
+        private void SetVisible(bool visible)
         {
-            if (target == null)
+            if (canvasGroup == null)
                 return;
             
-            if (target == gameObject)
-                return;
+            canvasGroup.alpha = visible ? 1f : 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
 
-            if (target.activeSelf != active)
-                target.SetActive(active);
+        private void CacheReferenceRectHeight()
+        {
+            if (_rectTransform == null)
+            {
+                _referenceRectHeight = 1f;
+                return;
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_rectTransform);
+
+            _referenceRectHeight = Mathf.Max(1f, _rectTransform.rect.height);
         }
     }
 }

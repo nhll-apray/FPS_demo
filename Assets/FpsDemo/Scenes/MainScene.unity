@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0.05}
+  m_AnchoredPosition: {x: 0, y: 0.09}
   m_SizeDelta: {x: 1, y: 0.2}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &104067091
@@ -203,8 +203,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.1
-  m_fontSizeBase: 0.1
+  m_fontSize: 0.2
+  m_fontSizeBase: 0.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2815,7 +2815,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.4
+  m_Radius: 0.8
   m_SlopeLimit: 50
   m_StepOffset: 1
   m_SkinWidth: 0.05
@@ -3038,7 +3038,6 @@ MonoBehaviour:
   hitSound: {fileID: 8300000, guid: d9ceaf99a51c68749a9e959e7f8c00a6, type: 3}
   headshotSound: {fileID: 8300000, guid: fae58a3b877ee7f4ab449594be52d086, type: 3}
   killSound: {fileID: 8300000, guid: 7e887b8561d50744fbb62c8a92bd7630, type: 3}
-  headshotSoundOverridesHitSound: 1
 --- !u!43 &539149403
 Mesh:
   m_ObjectHideFlags: 0
@@ -4713,7 +4712,7 @@ Transform:
   m_GameObject: {fileID: 1538161154}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.3, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4939,16 +4938,17 @@ MonoBehaviour:
   followTarget: {fileID: 1538161155}
   playerCamera: {fileID: 330585545}
   canvasGroup: {fileID: 1762568672}
-  fillImage: {fileID: 0}
+  fillImage: {fileID: 1893066539}
   nameText: {fileID: 104067091}
-  healthBarRoot: {fileID: 1213663243}
   displayName: Enemy
   visibleDurationAfterDamage: 10
   maxVisibleDistance: 60
+  bottomGapPixels: 24
+  controlScreenSize: 1
   desiredScreenHeightPixels: 100
-  constantSizeDistance: 20
+  constantSizeDistance: 15
   minScreenHeightPixels: 28
-  farShrinkPower: 0.25
+  farShrinkPower: 0.5
 --- !u!223 &1762568674
 Canvas:
   m_ObjectHideFlags: 0
@@ -8184,7 +8184,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.2
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
