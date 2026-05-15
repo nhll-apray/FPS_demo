@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: AK47
   maxAmmo: 30
+  icon: {fileID: 21300000, guid: dccc05b8d01dde54f88f9910329187c2, type: 3}
   damage: 10
   critDamage: 50
   reloadDuration: 2
