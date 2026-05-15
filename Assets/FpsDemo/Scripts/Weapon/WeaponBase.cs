@@ -16,8 +16,19 @@ namespace FpsDemo.Weapon
         
         [SerializeField]
         protected int currentAmmo;
-        public int CurrentAmmo { get => currentAmmo; protected set => currentAmmo = value; }
 
+        public int CurrentAmmo
+        {
+            get => currentAmmo;
+            protected set
+            {
+                int preAmmo = currentAmmo;
+                currentAmmo = Math.Clamp(value, 0, WeaponData.MaxAmmo);
+                OnAmmoChange?.Invoke(preAmmo, currentAmmo);
+            }
+        }
+
+        public event Action<int, int> OnAmmoChange;
         
         private void Awake()
         {
@@ -46,9 +57,9 @@ namespace FpsDemo.Weapon
         public virtual void Reload()
         {
             Debug.Log("Reload");
-            if (currentAmmo >= WeaponData.MaxAmmo) return;
+            if (CurrentAmmo >= WeaponData.MaxAmmo) return;
 
-            currentAmmo = WeaponData.MaxAmmo;
+            CurrentAmmo = WeaponData.MaxAmmo;
         }
 
         public void SetOwnerInfo(GameObject go, IAimProvider ap)

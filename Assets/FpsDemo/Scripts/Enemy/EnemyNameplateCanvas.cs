@@ -15,22 +15,13 @@ namespace FpsDemo.Enemy
         [SerializeField] private TMP_Text nameText;
 
         [SerializeField] private string displayName = "Enemy";
-
         [SerializeField] private float visibleDurationAfterDamage = 10f;
-
         [SerializeField] private float maxVisibleDistance = 60f;
-
-
         [SerializeField] private float bottomGapPixels = 8f;
-
         [SerializeField] private bool controlScreenSize = true;
-        
         [SerializeField] private float desiredScreenHeightPixels = 100f;
-        
         [SerializeField] private float constantSizeDistance = 20f;
-        
         [SerializeField] private float minScreenHeightPixels = 28f;
-        
         [SerializeField] private float farShrinkPower = 0.5f;
 
         private RectTransform _rectTransform;
@@ -86,23 +77,23 @@ namespace FpsDemo.Enemy
 
         private void OnEnable()
         {
-            if (health == null)
-                return;
+            if (health != null)
+            {
+                health.OnHealthChanged += OnHealthChanged;
+                health.OnDied += OnDied;
 
-            health.OnHealthChanged += OnHealthChanged;
-            health.OnDied += OnDied;
-
-            _lastHealth = health.CurrentHealth;
-            RefreshHealthBar(health.CurrentHealth, health.MaxHealth);
+                _lastHealth = health.CurrentHealth;
+                RefreshHealthBar(health.CurrentHealth, health.MaxHealth);
+            }
         }
 
         private void OnDisable()
         {
-            if (health == null)
-                return;
-
-            health.OnHealthChanged -= OnHealthChanged;
-            health.OnDied -= OnDied;
+            if (health != null)
+            {
+                health.OnHealthChanged -= OnHealthChanged;
+                health.OnDied -= OnDied;
+            }
         }
 
         private void LateUpdate()
@@ -112,10 +103,7 @@ namespace FpsDemo.Enemy
 
             Vector3 anchorPosition = followTarget.position;
 
-            float distance = Vector3.Distance(
-                playerCamera.transform.position,
-                anchorPosition
-            );
+            float distance = Vector3.Distance(playerCamera.transform.position, anchorPosition);
 
             UpdateScale(distance);
             UpdatePosition(anchorPosition, distance);
@@ -130,7 +118,9 @@ namespace FpsDemo.Enemy
             bool tookDamage = currentHealth < _lastHealth;
 
             if (tookDamage && currentHealth > 0)
+            {
                 ShowForDuration();
+            }
 
             _lastHealth = currentHealth;
         }
@@ -145,9 +135,7 @@ namespace FpsDemo.Enemy
             if (fillImage == null)
                 return;
 
-            float normalized = maxHealth <= 0
-                ? 0f
-                : (float)currentHealth / maxHealth;
+            float normalized = maxHealth <= 0 ? 0f : (float)currentHealth / maxHealth;
 
             fillImage.fillAmount = Mathf.Clamp01(normalized);
         }
@@ -191,10 +179,7 @@ namespace FpsDemo.Enemy
 
             float targetScreenHeightPixels = GetTargetScreenHeightPixels(distance);
 
-            float desiredWorldHeight = ScreenPixelsToWorldHeight(
-                distance,
-                targetScreenHeightPixels
-            );
+            float desiredWorldHeight = ScreenPixelsToWorldHeight(distance, targetScreenHeightPixels);
 
             float scale = desiredWorldHeight / _referenceRectHeight;
 
@@ -208,10 +193,7 @@ namespace FpsDemo.Enemy
             if (distance <= startDistance)
                 return desiredScreenHeightPixels;
 
-            float shrinkFactor = Mathf.Pow(
-                startDistance / Mathf.Max(distance, 0.01f),
-                farShrinkPower
-            );
+            float shrinkFactor = Mathf.Pow(startDistance / Mathf.Max(distance, 0.01f), farShrinkPower);
 
             float targetPixels = desiredScreenHeightPixels * shrinkFactor;
 
@@ -231,8 +213,7 @@ namespace FpsDemo.Enemy
                 return worldScreenHeight * pixels / Screen.height;
             }
 
-            float worldScreenHeightAtDistance =
-                2f * distance * Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            float worldScreenHeightAtDistance = 2f * distance * Mathf.Tan(playerCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
 
             return worldScreenHeightAtDistance * pixels / Screen.height;
         }
@@ -251,26 +232,9 @@ namespace FpsDemo.Enemy
                 return;
             }
 
-            bool shouldShowBecauseRecentlyDamaged =
-                _visibleUntilTime > 0f && Time.time <= _visibleUntilTime;
+            bool shouldShowBecauseRecentlyDamaged = _visibleUntilTime > 0f && Time.time <= _visibleUntilTime;
 
             SetVisible(shouldShowBecauseRecentlyDamaged);
-        }
-
-        private bool IsOffscreen()
-        {
-            if (playerCamera == null)
-                return true;
-
-            Vector3 viewportPosition = playerCamera.WorldToViewportPoint(transform.position);
-
-            if (viewportPosition.z <= 0f)
-                return true;
-
-            return viewportPosition.x < 0f ||
-                   viewportPosition.x > 1f ||
-                   viewportPosition.y < 0f ||
-                   viewportPosition.y > 1f;
         }
 
         private void SetVisible(bool visible)

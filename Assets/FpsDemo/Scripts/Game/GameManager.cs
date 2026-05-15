@@ -1,3 +1,4 @@
+using FpsDemo.Player;
 using UnityEngine;
 
 namespace FpsDemo.Game
@@ -6,7 +7,7 @@ namespace FpsDemo.Game
     {
         public static GameManager Instance { get; private set; }
     
-        public Player.Player CurrentPlayer { get; private set; }
+        public PlayerEntity CurrentPlayer { get; private set; }
 
         public void Awake()
         {
@@ -32,7 +33,7 @@ namespace FpsDemo.Game
         
         }
 
-        public void RegisterPlayer(Player.Player player)
+        public void RegisterPlayer(PlayerEntity player)
         {
             if (CurrentPlayer == null)
             {
@@ -40,7 +41,7 @@ namespace FpsDemo.Game
             }
         }
     
-        public void UnregisterPlayer(Player.Player player)
+        public void UnregisterPlayer(PlayerEntity player)
         {
             if (CurrentPlayer == player)
             {

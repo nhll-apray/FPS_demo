@@ -10,7 +10,6 @@ namespace FpsDemo.Enemy
         [SerializeField] private float respawnDelay = 2.5f;
         
         [SerializeField] private GameObject currentEnemy;
-        [SerializeField] private bool spawnOnStart = true;
 
         private Coroutine _respawnCoroutine;
 
@@ -19,7 +18,7 @@ namespace FpsDemo.Enemy
             if (spawnPoint == null)
                 spawnPoint = transform;
 
-            if (currentEnemy == null && spawnOnStart)
+            if (currentEnemy == null)
             {
                 SpawnEnemy();
             }
@@ -27,13 +26,10 @@ namespace FpsDemo.Enemy
 
         private void Update()
         {
-            if (currentEnemy != null)
-                return;
-
-            if (_respawnCoroutine != null)
-                return;
-
-            _respawnCoroutine = StartCoroutine(RespawnRoutine());
+            if (currentEnemy == null && _respawnCoroutine == null)
+            {
+                _respawnCoroutine = StartCoroutine(RespawnRoutine());
+            }
         }
 
         private IEnumerator RespawnRoutine()
@@ -48,9 +44,7 @@ namespace FpsDemo.Enemy
         private void SpawnEnemy()
         {
             if (enemyPrefab == null)
-            {
                 return;
-            }
 
             currentEnemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
         }

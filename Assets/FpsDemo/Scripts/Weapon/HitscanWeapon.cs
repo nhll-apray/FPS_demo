@@ -2,7 +2,6 @@
 using System.Collections;
 using FpsDemo.Combat;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace FpsDemo.Weapon
 {
@@ -24,8 +23,7 @@ namespace FpsDemo.Weapon
         public bool IsFiring => _currentState == WeaponState.Firing;
 
         private float _nextFireTime;
-
-        // 关键：记录玩家当前是否还按着开火键。
+        
         private bool _fireInputHeld;
 
         public event Action OnFiredStarted;
@@ -88,7 +86,7 @@ namespace FpsDemo.Weapon
             if (Time.time < _nextFireTime)
                 return;
 
-            if (currentAmmo > 0)
+            if (CurrentAmmo > 0)
             {
                 Fire();
                 _nextFireTime = Time.time + hitscanWeaponData.FireInterval;
@@ -101,10 +99,12 @@ namespace FpsDemo.Weapon
 
         private void Fire()
         {
-            currentAmmo--;
+            CurrentAmmo--;
 
             if (audioSource != null && hitscanWeaponData.ShootSound != null)
+            {
                 audioSource.PlayOneShot(hitscanWeaponData.ShootSound);
+            }
             
             OnFiredStarted?.Invoke();
 
@@ -134,7 +134,7 @@ namespace FpsDemo.Weapon
             if (_currentState == WeaponState.Reloading)
                 return;
 
-            if (currentAmmo >= hitscanWeaponData.MaxAmmo)
+            if (CurrentAmmo >= hitscanWeaponData.MaxAmmo)
                 return;
 
             StartCoroutine(ReloadRoutine());
@@ -157,16 +157,14 @@ namespace FpsDemo.Weapon
 
             yield return new WaitForSeconds(hitscanWeaponData.ReloadDuration);
 
-            currentAmmo = hitscanWeaponData.MaxAmmo;
+            CurrentAmmo = hitscanWeaponData.MaxAmmo;
 
             if (audioSource != null)
                 audioSource.pitch = 1f;
 
-            bool shouldResumeFire = _fireInputHeld && currentAmmo > 0;
+            bool shouldResumeFire = _fireInputHeld && CurrentAmmo > 0;
 
-            _currentState = shouldResumeFire
-                ? WeaponState.Firing
-                : WeaponState.Idle;
+            _currentState = shouldResumeFire ? WeaponState.Firing : WeaponState.Idle;
 
             OnReloadFinished?.Invoke();
 

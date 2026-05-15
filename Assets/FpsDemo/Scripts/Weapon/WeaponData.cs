@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace FpsDemo.Weapon
 {
@@ -8,6 +9,7 @@ namespace FpsDemo.Weapon
         public string WeaponName => weaponName;
         [SerializeField] private int maxAmmo;
         public int MaxAmmo => maxAmmo;
-        
+        [SerializeField] private Sprite icon;
+        public Sprite Icon => icon;
     }
 }

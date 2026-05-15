@@ -34,9 +34,9 @@ namespace FpsDemo.Combat
         {
             if (IsDead)
                 return DamageResult.None;
-            int healthBefore = CurrentHealth;
+            int preHealth = CurrentHealth;
             CurrentHealth -= damageInfo.damage;
-            int damage = Math.Max(0, healthBefore - CurrentHealth) ;
+            int damage = Math.Max(0, preHealth - CurrentHealth) ;
             DamageResult damageResult = new DamageResult(damage, damageInfo.attacker, gameObject, IsDead);
             return damageResult;
         }
