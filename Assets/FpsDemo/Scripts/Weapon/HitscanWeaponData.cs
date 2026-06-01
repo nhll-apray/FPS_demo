@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using FpsDemo.Game;
 using UnityEngine.Serialization;
 
 namespace FpsDemo.Weapon
@@ -11,8 +12,6 @@ namespace FpsDemo.Weapon
         [FormerlySerializedAs("reloadTime")] [SerializeField] private float reloadDuration = 2.5f;
         [SerializeField] private float range = 100f;
         [SerializeField] private float fireInterval = 0.4f;
-        [SerializeField] private AudioClip shootSound;
-        [SerializeField] private AudioClip reloadSound;
         
         [SerializeField] private float recoilPitch = 0.35f;
         [SerializeField] private float recoilYaw = 0.08f;
@@ -26,14 +25,22 @@ namespace FpsDemo.Weapon
         [Range(0f, 1f)]
         [SerializeField] private float accurateRecoilMultiplier = 0.2f;
         [SerializeField] private int recoilRampShots = 4;
+
+        private AudioClip _shootSound;
+        private AudioClip _reloadSound;
         
         public int Damage => damage;
         public float CritDamage => critDamage;
         public float ReloadDuration => reloadDuration;
         public float Range => range;
         public float FireInterval => fireInterval;
-        public AudioClip ShootSound => shootSound;
-        public AudioClip ReloadSound => reloadSound;
+        public AudioClip ShootSound => _shootSound != null
+            ? _shootSound
+            : _shootSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Weapon.AK47.Shoot);
+
+        public AudioClip ReloadSound => _reloadSound != null
+            ? _reloadSound
+            : _reloadSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Weapon.AK47.Reload);
         
         public float RecoilPitch => recoilPitch;
         public float RecoilYaw => recoilYaw;

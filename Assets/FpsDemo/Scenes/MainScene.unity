@@ -2950,9 +2950,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 513814125}
-  hitSound: {fileID: 8300000, guid: d9ceaf99a51c68749a9e959e7f8c00a6, type: 3}
-  headshotSound: {fileID: 8300000, guid: fae58a3b877ee7f4ab449594be52d086, type: 3}
-  killSound: {fileID: 8300000, guid: 7e887b8561d50744fbb62c8a92bd7630, type: 3}
 --- !u!1 &513891179
 GameObject:
   m_ObjectHideFlags: 0

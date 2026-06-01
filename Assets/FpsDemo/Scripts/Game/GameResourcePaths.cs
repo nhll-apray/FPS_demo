@@ -33,5 +33,25 @@ namespace FpsDemo.Game
                 public const string Explosion = "VFX/Explosion Prefab";
             }
         }
+
+        public static class Audio
+        {
+            public static class Sfx
+            {
+                public const string Damage = "damage";
+                public const string Headshot = "headshot";
+                public const string Kill = "kill";
+                public const string Soldier76 = "soldier-76-0000000436CE";
+
+                public static class Weapon
+                {
+                    public static class AK47
+                    {
+                        public const string Shoot = "Weapon/AK47/shoot";
+                        public const string Reload = "Weapon/AK47/reload";
+                    }
+                }
+            }
+        }
     }
 }

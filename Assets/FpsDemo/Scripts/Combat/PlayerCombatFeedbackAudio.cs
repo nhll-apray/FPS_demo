@@ -6,15 +6,20 @@ namespace FpsDemo.Combat
     public class PlayerCombatFeedbackAudio : MonoBehaviour
     {
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private AudioClip hitSound;
-        [SerializeField] private AudioClip headshotSound;
-        [SerializeField] private AudioClip killSound;
+
+        private AudioClip _hitSound;
+        private AudioClip _headshotSound;
+        private AudioClip _killSound;
 
         private void Awake()
         {
 
             if (audioSource == null)
                 audioSource = GetComponent<AudioSource>();
+
+            _hitSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Damage);
+            _headshotSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Headshot);
+            _killSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Kill);
         }
 
         private void OnEnable()
@@ -42,18 +47,18 @@ namespace FpsDemo.Combat
 
         private void PlayFeedback(DamageResult result)
         {
-            if (result.isKill && killSound != null)
+            if (result.isKill && _killSound != null)
             {
-                audioSource.PlayOneShot(killSound);
+                audioSource.PlayOneShot(_killSound);
             }
 
-            if (result.isHeadshot && headshotSound != null)
+            if (result.isHeadshot && _headshotSound != null)
             {
-                audioSource.PlayOneShot(headshotSound);
+                audioSource.PlayOneShot(_headshotSound);
             }
-            else if (hitSound != null)
+            else if (_hitSound != null)
             {
-                audioSource.PlayOneShot(hitSound);
+                audioSource.PlayOneShot(_hitSound);
             }
         }
     }
