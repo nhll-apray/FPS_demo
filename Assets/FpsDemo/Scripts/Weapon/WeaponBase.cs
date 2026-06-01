@@ -13,6 +13,7 @@ namespace FpsDemo.Weapon
         protected AudioSource audioSource;
         public GameObject Owner { get; private set; }
         protected IAimProvider aimProvider;
+        protected ICameraRecoilReceiver cameraRecoilReceiver;
         
         [SerializeField]
         protected int currentAmmo;
@@ -30,6 +31,9 @@ namespace FpsDemo.Weapon
 
         public event Action<int, int> OnAmmoChange;
         
+        [SerializeField] private WeaponAltFireBase altFire;
+        public bool IsAltFiring => altFire != null && altFire.IsActive;
+        
         private void Awake()
         {
             animator = GetComponent<Animator>();
@@ -44,19 +48,16 @@ namespace FpsDemo.Weapon
         public virtual void StartFire()
         {
             if (Owner == null || aimProvider == null) return;
-            Debug.Log("StartFire");
         }
 
         public virtual void StopFire()
         {
             if (Owner == null || aimProvider == null) return;
-            Debug.Log("StopFire");
         }
         
 
         public virtual void Reload()
         {
-            Debug.Log("Reload");
             if (CurrentAmmo >= WeaponData.MaxAmmo) return;
 
             CurrentAmmo = WeaponData.MaxAmmo;
@@ -66,6 +67,30 @@ namespace FpsDemo.Weapon
         {
             Owner = go;
             aimProvider = ap;
+            cameraRecoilReceiver = ap as ICameraRecoilReceiver;
+
+            if (cameraRecoilReceiver == null && go != null)
+                cameraRecoilReceiver = go.GetComponent<ICameraRecoilReceiver>();
         }
+        
+        public virtual void StartAltFire()
+        {
+            if (Owner == null || aimProvider == null)
+                return;
+
+            if (altFire == null)
+                return;
+
+            altFire.TryStart(this, new WeaponUseContext(Owner, aimProvider));
+        }
+
+        public virtual void StopAltFire()
+        {
+            if (Owner == null || aimProvider == null)
+                return;
+
+            altFire?.Stop(this, new WeaponUseContext(Owner, aimProvider));
+        }
+        public virtual bool CanAltFire => true;
     }
 }

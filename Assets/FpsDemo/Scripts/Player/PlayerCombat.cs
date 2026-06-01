@@ -25,6 +25,7 @@ namespace FpsDemo.Player
             {
                 _inputReader.OnFireEvent += OnFireInputChanged;
                 _inputReader.OnReloadEvent += Reload;
+                _inputReader.OnAltFireEvent += OnAltFireInputChanged;
             }
         }
 
@@ -34,6 +35,7 @@ namespace FpsDemo.Player
             {
                 _inputReader.OnFireEvent -= OnFireInputChanged;
                 _inputReader.OnReloadEvent -= Reload;
+                _inputReader.OnAltFireEvent -= OnAltFireInputChanged;
             }
         }
 
@@ -69,6 +71,20 @@ namespace FpsDemo.Player
                 _weaponInventory.Reload();
             }
         }
-    
+
+        private void OnAltFireInputChanged(bool isAltFireHeld)
+        {
+            if (_weaponInventory != null)
+            {
+                if (isAltFireHeld)
+                {
+                    _weaponInventory.StartAltFire();
+                }
+                else
+                {
+                    _weaponInventory.StopAltFire();
+                }
+            }        
+        }
     }
 }

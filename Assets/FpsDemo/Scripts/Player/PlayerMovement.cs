@@ -10,10 +10,12 @@ namespace FpsDemo.Player
         private PlayerInputReader _playerInputReader;
         private CharacterController _characterController;
 
-        public bool IsWalking => _playerInputReader.MoveInput != Vector2.zero && CurrentGround.isGrounded;
+        public bool IsWalking => _playerInputReader != null && _playerInputReader.MoveInput != Vector2.zero && CurrentGround.isGrounded;
+        public bool IsSprinting => IsWalking && _playerInputReader.IsShiftHeld;
     
         [Header("地面移动")]
         public float walkSpeed = 7f;
+        public float sprintSpeed = 10.5f;
         public float groundAcceleration = 50f;
 
         [Header("空中移动")]
@@ -105,7 +107,8 @@ namespace FpsDemo.Player
             //地面
             if (CurrentGround.isGrounded)
             {
-                Vector3 targetVelocity = walkSpeed * worldSpaceMoveInput;
+                float targetSpeed = IsSprinting ? sprintSpeed : walkSpeed;
+                Vector3 targetVelocity = targetSpeed * worldSpaceMoveInput;
                 targetVelocity = targetVelocity.magnitude * GetDirectionReorientedOnSlope(targetVelocity.normalized, CurrentGround.normal);
                 Velocity = Vector3.Lerp(Velocity, targetVelocity, groundAcceleration * Time.deltaTime);
             }

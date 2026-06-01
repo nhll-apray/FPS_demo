@@ -1,5 +1,4 @@
-﻿using System;
-using FpsDemo.Combat;
+﻿using FpsDemo.Combat;
 using UnityEngine;
 
 namespace FpsDemo.Weapon
@@ -11,7 +10,7 @@ namespace FpsDemo.Weapon
         public WeaponBase CurrentWeapon
         {
             get => currentWeapon;
-            set
+            private set
             {
                 if (currentWeapon != null)
                 {
@@ -59,6 +58,22 @@ namespace FpsDemo.Weapon
             if (CurrentWeapon != null)
             {
                 CurrentWeapon.Reload();
+            }
+        }
+        
+        public void StartAltFire()
+        {
+            if (CurrentWeapon != null)
+            {
+                CurrentWeapon.StartAltFire();
+            }
+        }
+
+        public void StopAltFire()
+        {
+            if (CurrentWeapon != null)
+            {
+                CurrentWeapon?.StopAltFire();
             }
         }
     }

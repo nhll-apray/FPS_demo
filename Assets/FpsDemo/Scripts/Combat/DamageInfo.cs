@@ -12,11 +12,20 @@ namespace FpsDemo.Combat
     {
         public readonly int damage;
         public readonly GameObject attacker;
+        public readonly DamageType damageType;
+        public readonly Vector3 hitPoint;
         
         public DamageInfo(int damage, GameObject attacker)
+            : this(damage, attacker, DamageType.Hitscan, Vector3.zero)
+        {
+        }
+
+        public DamageInfo(int damage, GameObject attacker, DamageType damageType, Vector3 hitPoint)
         {
             this.damage = damage;
             this.attacker = attacker;
+            this.damageType = damageType;
+            this.hitPoint = hitPoint;
         }
     }
 

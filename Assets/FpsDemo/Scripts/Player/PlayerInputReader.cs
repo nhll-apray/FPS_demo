@@ -12,6 +12,7 @@ namespace FpsDemo.Player
     
         public Vector2 MoveInput { get; private set; }
         public Vector2 LookInput { get; private set; }
+        public bool IsShiftHeld { get; private set; }
 
         public event Action OnWeapon1Event;
         public event Action OnWeapon2Event;
@@ -33,7 +34,12 @@ namespace FpsDemo.Player
         }
 
         private void OnEnable() => _controls.Player.Enable();
-        private void OnDisable() => _controls.Player.Disable();
+
+        private void OnDisable()
+        {
+            IsShiftHeld = false;
+            _controls.Player.Disable();
+        }
 
         public void OnMove(InputAction.CallbackContext context)
         {
@@ -87,8 +93,17 @@ namespace FpsDemo.Player
 
         public void OnShift(InputAction.CallbackContext context)
         {
-            if (context.phase == InputActionPhase.Started) OnShiftEvent?.Invoke(true);
-            if (context.phase == InputActionPhase.Canceled) OnShiftEvent?.Invoke(false);
+            if (context.phase == InputActionPhase.Started)
+            {
+                IsShiftHeld = true;
+                OnShiftEvent?.Invoke(true);
+            }
+
+            if (context.phase == InputActionPhase.Canceled)
+            {
+                IsShiftHeld = false;
+                OnShiftEvent?.Invoke(false);
+            }
         }
 
         public void OnSkill(InputAction.CallbackContext context)

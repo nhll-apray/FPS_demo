@@ -30,9 +30,6 @@ namespace FpsDemo.Combat
         private void OnDamageDealt(DamageDealtEvent eventData)
         {
             DamageResult result = eventData.damageResult;
-            
-            Debug.Log(result.attacker);
-            Debug.Log(result.damageApplied);
 
             if (result.attacker != gameObject)
                 return;

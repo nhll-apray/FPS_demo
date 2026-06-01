@@ -11,8 +11,6 @@ namespace FpsDemo.Combat
             {
                 return DamageResult.None;
             }
-
-            Debug.Log(info.attacker);
             
             DamageResult result = target.TakeDamage(info);
 

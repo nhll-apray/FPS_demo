@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections;
 using FpsDemo.Combat;
+using FpsDemo.Game;
 using UnityEngine;
 
 namespace FpsDemo.Weapon
 {
     public class HitscanWeapon : WeaponBase
     {
-        public HitscanWeaponData hitscanWeaponData;
-        public override WeaponData WeaponData => hitscanWeaponData;
+        private HitscanWeaponData _hitscanWeaponData;
+
+        public HitscanWeaponData HitscanWeaponData => _hitscanWeaponData != null
+            ? _hitscanWeaponData
+            : _hitscanWeaponData = GameResources.LoadData<HitscanWeaponData>(GameResourcePaths.Data.Weapon.HitscanWeaponDataAK47);
+
+        public HitscanWeaponData hitscanWeaponData => HitscanWeaponData;
+        public override WeaponData WeaponData => HitscanWeaponData;
 
         enum WeaponState
         {
@@ -25,6 +32,7 @@ namespace FpsDemo.Weapon
         private float _nextFireTime;
         
         private bool _fireInputHeld;
+        private int _shotsFiredInBurst;
 
         public event Action OnFiredStarted;
         public event Action OnFiredStoped;
@@ -43,6 +51,9 @@ namespace FpsDemo.Weapon
         {
             _fireInputHeld = true;
 
+            if (IsAltFiring)
+                return;
+            
             if (IsReloading)
                 return;
 
@@ -51,7 +62,7 @@ namespace FpsDemo.Weapon
 
             base.StartFire();
 
-            _currentState = WeaponState.Firing;
+            EnterFiringState(resetBurst: true);
             _nextFireTime = Time.time;
 
             TryFire();
@@ -118,6 +129,20 @@ namespace FpsDemo.Weapon
                     DamageSystem.ApplyDamage(damageable, new DamageInfo(hitscanWeaponData.Damage, Owner));
                 }
             }
+            
+            float recoilScale = hitscanWeaponData.GetRecoilScale(_shotsFiredInBurst);
+            _shotsFiredInBurst++;
+
+            cameraRecoilReceiver?.ApplyCameraRecoil(new CameraRecoilSettings
+            {
+                pitchPerShot = hitscanWeaponData.RecoilPitch * recoilScale,
+                yawRandomRange = hitscanWeaponData.RecoilYaw * recoilScale,
+                applySpeed = hitscanWeaponData.RecoilApplySpeed,
+                recoverySpeed = hitscanWeaponData.RecoilRecoverySpeed,
+                recoveryDelay = hitscanWeaponData.RecoilRecoveryDelay,
+                maxQueuedPitch = hitscanWeaponData.MaxRecoilPitch,
+                maxQueuedYaw = hitscanWeaponData.MaxRecoilYaw
+            });
         }
 
         public GameObject GetAimTarget()
@@ -131,6 +156,9 @@ namespace FpsDemo.Weapon
 
         public override void Reload()
         {
+            if (IsAltFiring)
+                return;
+            
             if (_currentState == WeaponState.Reloading)
                 return;
 
@@ -164,15 +192,34 @@ namespace FpsDemo.Weapon
 
             bool shouldResumeFire = _fireInputHeld && CurrentAmmo > 0;
 
-            _currentState = shouldResumeFire ? WeaponState.Firing : WeaponState.Idle;
+            if (shouldResumeFire)
+            {
+                EnterFiringState(resetBurst: true);
+                _nextFireTime = Time.time;
+            }
+            else
+            {
+                _currentState = WeaponState.Idle;
+            }
 
             OnReloadFinished?.Invoke();
 
             if (shouldResumeFire)
             {
-                _nextFireTime = Time.time;
                 TryFire();
             }
+        }
+
+        private void EnterFiringState(bool resetBurst)
+        {
+            _currentState = WeaponState.Firing;
+
+            if (resetBurst)
+            {
+                _shotsFiredInBurst = 0;
+            }
+
+            cameraRecoilReceiver?.BeginCameraRecoil();
         }
 
         private void StopFiringStateWithoutClearingInput()
@@ -181,7 +228,17 @@ namespace FpsDemo.Weapon
                 return;
 
             _currentState = WeaponState.Idle;
+            cameraRecoilReceiver?.EndCameraRecoil();
             OnFiredStoped?.Invoke();
+        }
+        
+        public override void StartAltFire()
+        {
+            if (IsReloading)
+                return;
+
+            StopFiringStateWithoutClearingInput();
+            base.StartAltFire();
         }
     }
 }

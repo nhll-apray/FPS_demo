@@ -2380,6 +2380,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4633603241813726}
+  - {fileID: 513891180}
   m_Father: {fileID: 330585546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
@@ -2786,7 +2787,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 330585545}
-  cameraEffectProfile: {fileID: 11400000, guid: 3959a72df7c188b47a4df0e84fc58b92, type: 2}
   sensitivityX: 1.5
   sensitivityY: 1.5
 --- !u!114 &513814121
@@ -2953,6 +2953,37 @@ MonoBehaviour:
   hitSound: {fileID: 8300000, guid: d9ceaf99a51c68749a9e959e7f8c00a6, type: 3}
   headshotSound: {fileID: 8300000, guid: fae58a3b877ee7f4ab449594be52d086, type: 3}
   killSound: {fileID: 8300000, guid: 7e887b8561d50744fbb62c8a92bd7630, type: 3}
+--- !u!1 &513891179
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 513891180}
+  m_Layer: 8
+  m_Name: Grenade_Spawn_Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &513891180
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513891179}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.02868566, y: 0.019282559, z: 0.0005534543, w: 0.99940234}
+  m_LocalPosition: {x: -0.174, y: 0.24000001, z: 0.15199983}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 333226524}
+  m_LocalEulerAnglesHint: {x: 86.038, y: 33.877003, z: 33.941}
 --- !u!43 &539149403
 Mesh:
   m_ObjectHideFlags: 0
@@ -4563,7 +4594,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8723a9e4c442cf87d7a813268ca2d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 4969844879726526983, guid: c6f443c839b876e48bfb8ae9272065d9, type: 3}
   spawnPoint: {fileID: 0}
   respawnDelay: 2.5
   currentEnemy: {fileID: 0}
@@ -6403,6 +6433,8 @@ GameObject:
   - component: {fileID: 4633603241813726}
   - component: {fileID: 95187860336784599}
   - component: {fileID: 95187860336784600}
+  - component: {fileID: 95187860336784601}
+  - component: {fileID: 95187860336784602}
   - component: {fileID: 95187860336784598}
   - component: {fileID: 82936730126169774}
   m_Layer: 7
@@ -8026,7 +8058,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   muzzle: {fileID: 0}
   currentAmmo: 0
-  hitscanWeaponData: {fileID: 11400000, guid: 3e2662b9e017f7d4ab535bb82927741b, type: 2}
+  altFire: {fileID: 95187860336784601}
 --- !u!114 &95187860336784600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8041,6 +8073,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   reloadClip: {fileID: 7400056, guid: 182b7f11db452bc458d35a6c9eced06f, type: 3}
   fireClip: {fileID: 7400040, guid: 182b7f11db452bc458d35a6c9eced06f, type: 3}
+--- !u!114 &95187860336784601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973745580787176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1beb713caf5141a0abce7933aaf812a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  throwOrigin: {fileID: 513891180}
+--- !u!114 &95187860336784602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973745580787176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd16babb1ae2443bb7fef9ef025189b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 95187860336784598}
+  grenadeAltFire: {fileID: 95187860336784601}
 --- !u!108 &108847465377514796
 Light:
   m_ObjectHideFlags: 0

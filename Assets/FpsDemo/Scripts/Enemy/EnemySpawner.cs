@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
+using FpsDemo.Game;
 using UnityEngine;
 
 namespace FpsDemo.Enemy
 {
     public class EnemySpawner : MonoBehaviour
     {
-        [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private float respawnDelay = 2.5f;
         
@@ -43,10 +43,11 @@ namespace FpsDemo.Enemy
 
         private void SpawnEnemy()
         {
-            if (enemyPrefab == null)
+            GameObject prefab = GameResources.LoadPrefab(GameResourcePaths.Prefabs.Enemy.EnemyDum);
+            if (prefab == null)
                 return;
 
-            currentEnemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+            currentEnemy = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
         }
     }
 }

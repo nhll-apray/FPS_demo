@@ -17,6 +17,10 @@ namespace FpsDemo.Weapon
         private static readonly int IntMoveState = Animator.StringToHash("MoveState");
         private static readonly int FloatReloadSpeed = Animator.StringToHash("ReloadSpeed");
         private static readonly int FloatFireSpeed = Animator.StringToHash("FireSpeed");
+
+        private const int IdleMoveState = 0;
+        private const int WalkMoveState = 1;
+        private const int RunMoveState = 2;
         
         [SerializeField] private AnimationClip reloadClip;
         [SerializeField] private AnimationClip fireClip;
@@ -61,14 +65,13 @@ namespace FpsDemo.Weapon
             }
             if (_playerMovement != null)
             {
-                if (_playerMovement.IsWalking)
-                {
-                    _animator.SetInteger(IntMoveState, 1);
-                }
-                else
-                {
-                    _animator.SetInteger(IntMoveState, 0);
-                }
+                int moveState = IdleMoveState;
+                if (_playerMovement.IsSprinting)
+                    moveState = RunMoveState;
+                else if (_playerMovement.IsWalking)
+                    moveState = WalkMoveState;
+
+                _animator.SetInteger(IntMoveState, moveState);
             }
         }
 
