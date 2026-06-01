@@ -23,7 +23,6 @@ namespace FpsDemo.Game
             T asset = Resources.Load<T>(fullPath);
             if (asset == null)
             {
-                Debug.LogWarning($"Resource not found: {fullPath}");
                 return null;
             }
 
