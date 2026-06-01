@@ -42,13 +42,13 @@ namespace FpsDemo.Player
                 _recoveryDelay = recoil.recoveryDelay;
             }
 
-            _queuedPitch += Mathf.Max(0f, recoil.pitchPerShot);
+            _queuedPitch = Mathf.Max(0f, recoil.pitchPerShot);
             if (recoil.maxQueuedPitch > 0f)
             {
                 _queuedPitch = Mathf.Min(_queuedPitch, recoil.maxQueuedPitch);
             }
 
-            _queuedYaw += GetHorizontalRecoilStep(recoil.yawRandomRange);
+            _queuedYaw = GetHorizontalRecoilStep(recoil.yawRandomRange);
             if (recoil.maxQueuedYaw > 0f)
             {
                 _queuedYaw = Mathf.Clamp(_queuedYaw, -recoil.maxQueuedYaw, recoil.maxQueuedYaw);

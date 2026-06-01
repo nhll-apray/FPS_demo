@@ -13,7 +13,7 @@ namespace FpsDemo.Game
             if (string.IsNullOrWhiteSpace(path))
                 return null;
 
-            string fullPath = NormalizePath(Root + path);
+            string fullPath = (Root + path).Replace('\\', '/').Trim('/');
             string cacheKey = $"{typeof(T).FullName}:{fullPath}";
             if (Cache.TryGetValue(cacheKey, out Object cachedAsset))
             {
@@ -43,11 +43,6 @@ namespace FpsDemo.Game
         public static AudioClip LoadSfx(string path)
         {
             return Load<AudioClip>("Audio/Sfx/" + path);
-        }
-
-        private static string NormalizePath(string path)
-        {
-            return path.Replace('\\', '/').Trim('/');
         }
     }
 }

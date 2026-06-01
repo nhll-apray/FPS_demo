@@ -33,6 +33,7 @@ namespace FpsDemo.Weapon
         
         private bool _fireInputHeld;
         private int _shotsFiredInBurst;
+        private const float MinRecoilApplyDuration = 0.0001f;
 
         public event Action OnFiredStarted;
         public event Action OnFiredStoped;
@@ -132,17 +133,30 @@ namespace FpsDemo.Weapon
             
             float recoilScale = hitscanWeaponData.GetRecoilScale(_shotsFiredInBurst);
             _shotsFiredInBurst++;
+            float pitchRecoil = hitscanWeaponData.RecoilPitch * recoilScale;
+            float yawRecoil = hitscanWeaponData.RecoilYaw * recoilScale;
 
             cameraRecoilReceiver?.ApplyCameraRecoil(new CameraRecoilSettings
             {
-                pitchPerShot = hitscanWeaponData.RecoilPitch * recoilScale,
-                yawRandomRange = hitscanWeaponData.RecoilYaw * recoilScale,
-                applySpeed = hitscanWeaponData.RecoilApplySpeed,
+                pitchPerShot = pitchRecoil,
+                yawRandomRange = yawRecoil,
+                applySpeed = GetRecoilApplySpeed(pitchRecoil, yawRecoil),
                 recoverySpeed = hitscanWeaponData.RecoilRecoverySpeed,
                 recoveryDelay = hitscanWeaponData.RecoilRecoveryDelay,
                 maxQueuedPitch = hitscanWeaponData.MaxRecoilPitch,
                 maxQueuedYaw = hitscanWeaponData.MaxRecoilYaw
             });
+        }
+
+        private float GetRecoilApplySpeed(float pitchRecoil, float yawRecoil)
+        {
+            float maxSingleShotRecoil = Mathf.Max(Mathf.Abs(pitchRecoil), Mathf.Abs(yawRecoil));
+            if (maxSingleShotRecoil <= 0f)
+                return hitscanWeaponData.RecoilApplySpeed;
+
+            float applyDuration = Mathf.Max(hitscanWeaponData.FireInterval, MinRecoilApplyDuration);
+            float minApplySpeed = maxSingleShotRecoil / applyDuration;
+            return Mathf.Max(hitscanWeaponData.RecoilApplySpeed, minApplySpeed);
         }
 
         public GameObject GetAimTarget()
