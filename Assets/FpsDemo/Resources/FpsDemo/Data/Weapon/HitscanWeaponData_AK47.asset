@@ -30,3 +30,5 @@ MonoBehaviour:
   accurateRecoilShots: 3
   accurateRecoilMultiplier: 0.2
   recoilRampShots: 4
+  shootSfxPath: Weapon/AK47/shoot
+  reloadSfxPath: Weapon/AK47/reload

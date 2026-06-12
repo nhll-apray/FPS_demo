@@ -26,3 +26,5 @@ MonoBehaviour:
   damageMask:
     serializedVersion: 2
     m_Bits: 256
+  grenadePrefabPath: Projectiles/Hand_Grenade_Prefab
+  explosionPrefabPath: VFX/Explosion Prefab

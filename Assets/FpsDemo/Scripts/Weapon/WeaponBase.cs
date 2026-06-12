@@ -1,5 +1,6 @@
 ﻿using System;
 using FpsDemo.Combat;
+using FpsDemo.Config.Weapon;
 using UnityEngine;
 
 namespace FpsDemo.Weapon
@@ -7,7 +8,7 @@ namespace FpsDemo.Weapon
     public abstract class WeaponBase : MonoBehaviour
     {
         public Transform muzzle;
-        public abstract WeaponData WeaponData { get; }
+        public abstract WeaponConfig WeaponConfig { get; }
         
         protected Animator animator;
         protected AudioSource audioSource;
@@ -24,7 +25,7 @@ namespace FpsDemo.Weapon
             protected set
             {
                 int preAmmo = currentAmmo;
-                currentAmmo = Math.Clamp(value, 0, WeaponData.MaxAmmo);
+                currentAmmo = Math.Clamp(value, 0, WeaponConfig.MaxAmmo);
                 OnAmmoChange?.Invoke(preAmmo, currentAmmo);
             }
         }
@@ -42,7 +43,7 @@ namespace FpsDemo.Weapon
 
         private void Start()
         {
-            CurrentAmmo = WeaponData.MaxAmmo;
+            CurrentAmmo = WeaponConfig.MaxAmmo;
         }
 
         public virtual void StartFire()
@@ -58,9 +59,9 @@ namespace FpsDemo.Weapon
 
         public virtual void Reload()
         {
-            if (CurrentAmmo >= WeaponData.MaxAmmo) return;
+            if (CurrentAmmo >= WeaponConfig.MaxAmmo) return;
 
-            CurrentAmmo = WeaponData.MaxAmmo;
+            CurrentAmmo = WeaponConfig.MaxAmmo;
         }
 
         public void SetOwnerInfo(GameObject go, IAimProvider ap)

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using FpsDemo.Weapon;
+using FpsDemo.Config.Weapon;
+using FpsDemo.Game;
 using UnityEngine;
 
 namespace FpsDemo.Combat
@@ -18,31 +19,32 @@ namespace FpsDemo.Combat
         private readonly Collider[] _physicsOverlapBuffer = new Collider[PhysicsOverlapBufferSize];
 
         private GameObject _owner;
-        private GrenadeAltFireData _data;
+        private GrenadeAltFireConfig _config;
         private Rigidbody _rigidbody;
         private Coroutine _fuseCoroutine;
         private bool _hasExploded;
+        private GameObject _explosionPrefab;
 
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
         }
 
-        public void Launch(GameObject owner, Vector3 direction, GrenadeAltFireData data)
+        public void Launch(GameObject owner, Vector3 direction, GrenadeAltFireConfig config)
         {
-            if (data == null)
+            if (config == null)
                 return;
 
             _owner = owner;
-            _data = data;
+            _config = config;
 
             if (_rigidbody != null)
             {
-                _rigidbody.linearVelocity = direction.normalized * _data.throwForce + Vector3.up * _data.upwardForce;
+                _rigidbody.linearVelocity = direction.normalized * _config.throwForce + Vector3.up * _config.upwardForce;
                 _rigidbody.AddRelativeTorque(Random.Range(500f, 1500f), 0f, 0f);
             }
 
-            StartFuse(_data.fuseTime);
+            StartFuse(_config.fuseTime);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -71,7 +73,7 @@ namespace FpsDemo.Combat
 
         private void Explode()
         {
-            if (_hasExploded || _data == null)
+            if (_hasExploded || _config == null)
                 return;
 
             _hasExploded = true;
@@ -83,7 +85,7 @@ namespace FpsDemo.Combat
 
         private void SpawnExplosionVisual()
         {
-            GameObject explosionPrefab = _data.ExplosionPrefab;
+            GameObject explosionPrefab = GetExplosionPrefab();
             if (explosionPrefab == null)
                 return;
 
@@ -92,10 +94,10 @@ namespace FpsDemo.Combat
 
         private void ApplyAreaDamage()
         {
-            if (_data.damage <= 0 || _data.radius <= 0f)
+            if (_config.damage <= 0 || _config.radius <= 0f)
                 return;
 
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _data.radius, _damageOverlapBuffer, _data.damageMask, QueryTriggerInteraction.Ignore);
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _config.radius, _damageOverlapBuffer, _config.damageMask, QueryTriggerInteraction.Ignore);
 
             _damagedTargets.Clear();
             for (int i = 0; i < hitCount; i++)
@@ -106,16 +108,16 @@ namespace FpsDemo.Combat
                     continue;
 
                 Vector3 hitPoint = hit.ClosestPoint(transform.position);
-                DamageSystem.ApplyDamage(damageable, new DamageInfo(_data.damage, _owner, DamageType.Explosion, hitPoint));
+                DamageSystem.ApplyDamage(damageable, new DamageInfo(_config.damage, _owner, DamageType.Explosion, hitPoint));
             }
         }
 
         private void ApplyPhysicsExplosion()
         {
-            if (!_data.applyExplosionForce || _data.radius <= 0f)
+            if (!_config.applyExplosionForce || _config.radius <= 0f)
                 return;
 
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _data.radius, _physicsOverlapBuffer, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _config.radius, _physicsOverlapBuffer, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
 
             for (int i = 0; i < hitCount; i++)
             {
@@ -123,9 +125,16 @@ namespace FpsDemo.Combat
                 Rigidbody hitRigidbody = hit.attachedRigidbody;
                 if (hitRigidbody != null)
                 {
-                    hitRigidbody.AddExplosionForce(_data.explosionForce, transform.position, _data.radius, _data.explosionUpwardsModifier);
+                    hitRigidbody.AddExplosionForce(_config.explosionForce, transform.position, _config.radius, _config.explosionUpwardsModifier);
                 }
             }
+        }
+
+        private GameObject GetExplosionPrefab()
+        {
+            return _explosionPrefab != null
+                ? _explosionPrefab
+                : _explosionPrefab = GameResources.LoadPrefab(_config.ExplosionPrefabPath);
         }
     }
 }

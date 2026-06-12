@@ -32,3 +32,10 @@ MonoBehaviour:
     shakeRoll: 0.4
   moveTiltAngle: 0.3
   moveTiltSpeed: 4
+  damageShake:
+    duration: 0.16
+    positionKick: 0.06
+    pitchKick: 1.2
+    rollKick: 0.8
+    rollNoise: 0.25
+    shakeFrequency: 16

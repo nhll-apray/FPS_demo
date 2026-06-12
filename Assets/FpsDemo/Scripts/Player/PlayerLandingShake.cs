@@ -1,4 +1,5 @@
-ï»¿using UnityEngine;
+using FpsDemo.Config.Player;
+using UnityEngine;
 
 namespace FpsDemo.Player
 {
@@ -22,18 +23,18 @@ namespace FpsDemo.Player
         private float _duration;
         private float _shakeSeed;
 
-        public void Play(float fallSpeed, PlayerCameraEffectProfile profile)
+        public void Play(float fallSpeed, PlayerCameraEffectConfig config)
         {
-            if (profile == null)
+            if (config == null)
                 return;
 
-            LandingType landingType = GetLandingType(fallSpeed, profile);
+            LandingType landingType = GetLandingType(fallSpeed, config);
 
             if (landingType == LandingType.None)
                 return;
 
             _currentLandingType = landingType;
-            _currentShakeSettings = landingType == LandingType.Heavy ? profile.heavyLandingShake : profile.smallLandingShake;
+            _currentShakeSettings = landingType == LandingType.Heavy ? config.heavyLandingShake : config.smallLandingShake;
             _duration = _currentShakeSettings.duration;
             _timer = _duration;
             _shakeSeed = Random.value * 100f;
@@ -47,7 +48,7 @@ namespace FpsDemo.Player
             if (_timer <= 0f || _duration <= 0f)
                 return;
 
-            //è®¡ç®—è½åœ°æŒ¯åŠ¨
+            //¼ÆËãÂäµØÕñ¶¯
             float elapsed = _duration - _timer;
             float t = Mathf.Clamp01(elapsed / _duration);
             float impactEnvelope = 1f - t;
@@ -77,12 +78,12 @@ namespace FpsDemo.Player
             RotationOffset = Vector3.zero;
         }
 
-        private LandingType GetLandingType(float fallSpeed, PlayerCameraEffectProfile profile)
+        private LandingType GetLandingType(float fallSpeed, PlayerCameraEffectConfig config)
         {
             fallSpeed = Mathf.Abs(fallSpeed);
-            if (fallSpeed < profile.minLandingSpeed)
+            if (fallSpeed < config.minLandingSpeed)
                 return LandingType.None;
-            if (fallSpeed >= profile.heavyLandingSpeed)
+            if (fallSpeed >= config.heavyLandingSpeed)
                 return LandingType.Heavy;
             return LandingType.Small;
         }

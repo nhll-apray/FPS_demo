@@ -1,4 +1,5 @@
-﻿using FpsDemo.Game;
+using FpsDemo.Config;
+using FpsDemo.Game;
 using UnityEngine;
 
 namespace FpsDemo.Combat

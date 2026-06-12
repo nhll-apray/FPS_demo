@@ -1,4 +1,6 @@
 using FpsDemo.Combat;
+using FpsDemo.Config;
+using FpsDemo.Config.Player;
 using FpsDemo.Game;
 using UnityEngine;
 
@@ -27,9 +29,9 @@ namespace FpsDemo.Player
         private void Awake()
         {
             _playerInputReader = GetComponent<PlayerInputReader>();
-            PlayerCameraEffectProfile cameraEffectProfile =
-                GameResources.LoadData<PlayerCameraEffectProfile>(GameResourcePaths.Data.Player.DefaultCameraEffectProfile);
-            _cameraEffects = new PlayerCameraEffects(cameraEffectProfile);
+            PlayerCameraEffectConfig cameraEffectConfig =
+                GameResources.LoadConfig<PlayerCameraEffectConfig>(GameResourcePaths.Config.Player.DefaultCameraEffect);
+            _cameraEffects = new PlayerCameraEffects(cameraEffectConfig);
         }
 
         private void OnEnable()
@@ -118,6 +120,11 @@ namespace FpsDemo.Player
         public void EndCameraRecoil()
         {
             _cameraEffects?.EndCameraRecoil();
+        }
+
+        public void PlayDamageShake(float intensity)
+        {
+            _cameraEffects?.PlayDamageShake(intensity);
         }
         
     }

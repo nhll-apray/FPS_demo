@@ -1,5 +1,7 @@
 using System.Collections;
 using FpsDemo.Combat;
+using FpsDemo.Config;
+using FpsDemo.Config.Weapon;
 using FpsDemo.Game;
 using UnityEngine;
 
@@ -10,12 +12,13 @@ namespace FpsDemo.Weapon
         [SerializeField] private Transform throwOrigin;
 
         private float _nextReadyTime;
+        private GameObject _grenadePrefab;
 
         protected override bool CanStart(WeaponBase weapon, WeaponUseContext context)
         {
-            GrenadeAltFireData grenadeData = GetData();
+            GrenadeAltFireConfig grenadeData = GetConfig();
             return grenadeData != null
-                   && grenadeData.GrenadePrefab != null
+                   && GetGrenadePrefab(grenadeData) != null
                    && Time.time >= _nextReadyTime
                    && context.aimProvider != null
                    && context.owner != null;
@@ -23,7 +26,7 @@ namespace FpsDemo.Weapon
 
         protected override void OnStart(WeaponBase weapon, WeaponUseContext context)
         {
-            GrenadeAltFireData grenadeData = GetData();
+            GrenadeAltFireConfig grenadeData = GetConfig();
             if (grenadeData == null)
             {
                 Finish();
@@ -33,7 +36,7 @@ namespace FpsDemo.Weapon
             StartCoroutine(ThrowRoutine(context, grenadeData));
         }
 
-        private IEnumerator ThrowRoutine(WeaponUseContext context, GrenadeAltFireData grenadeData)
+        private IEnumerator ThrowRoutine(WeaponUseContext context, GrenadeAltFireConfig grenadeData)
         {
             yield return new WaitForSeconds(grenadeData.releaseDelay);
 
@@ -46,12 +49,12 @@ namespace FpsDemo.Weapon
             Finish();
         }
 
-        private void SpawnGrenade(WeaponUseContext context, GrenadeAltFireData grenadeData)
+        private void SpawnGrenade(WeaponUseContext context, GrenadeAltFireConfig grenadeData)
         {
             Ray aimRay = context.aimProvider.GetAimRay();
             Vector3 origin = throwOrigin != null ? throwOrigin.position : aimRay.origin;
 
-            GameObject grenadePrefab = grenadeData.GrenadePrefab;
+            GameObject grenadePrefab = GetGrenadePrefab(grenadeData);
             if (grenadePrefab == null)
                 return;
 
@@ -64,9 +67,21 @@ namespace FpsDemo.Weapon
             }
         }
 
-        private GrenadeAltFireData GetData()
+        private GrenadeAltFireConfig GetConfig()
         {
-            return GameResources.LoadData<GrenadeAltFireData>(GameResourcePaths.Data.Weapon.GrenadeAltFireData);
+            return GameResources.LoadConfig<GrenadeAltFireConfig>(GameResourcePaths.Config.Weapon.GrenadeAltFire);
+        }
+
+        private GameObject GetGrenadePrefab(GrenadeAltFireConfig grenadeConfig)
+        {
+            if (grenadeConfig == null)
+            {
+                return null;
+            }
+
+            return _grenadePrefab != null
+                ? _grenadePrefab
+                : _grenadePrefab = GameResources.LoadPrefab(grenadeConfig.GrenadePrefabPath);
         }
     }
 }

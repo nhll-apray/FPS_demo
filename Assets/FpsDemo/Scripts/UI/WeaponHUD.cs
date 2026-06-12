@@ -24,7 +24,7 @@ namespace FpsDemo.UI
         public void Bind(WeaponInventory weaponInventory)
         {
             _weaponInventory = weaponInventory;
-            weaponImage.sprite = weaponInventory.CurrentWeapon.WeaponData.Icon;
+            weaponImage.sprite = weaponInventory.CurrentWeapon.WeaponConfig.Icon;
             if (_weaponInventory != null && _weaponInventory.CurrentWeapon != null)
             {
                 _weaponInventory.CurrentWeapon.OnAmmoChange += OnAmmoChanged;
@@ -33,7 +33,7 @@ namespace FpsDemo.UI
 
         private void OnAmmoChanged(int preAmmo, int currentAmmo)
         {
-            RefreshAmmo(currentAmmo, _weaponInventory.CurrentWeapon.WeaponData.MaxAmmo);
+            RefreshAmmo(currentAmmo, _weaponInventory.CurrentWeapon.WeaponConfig.MaxAmmo);
         }
         
         private void RefreshAmmo(int currentAmmo, int maxAmmo)

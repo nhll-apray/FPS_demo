@@ -40,6 +40,11 @@ namespace FpsDemo.Game
             return Load<T>("Data/" + path);
         }
 
+        public static T LoadConfig<T>(string path) where T : ScriptableObject
+        {
+            return LoadData<T>(path);
+        }
+
         public static AudioClip LoadSfx(string path)
         {
             return Load<AudioClip>("Audio/Sfx/" + path);

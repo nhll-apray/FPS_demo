@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace FpsDemo.Player
+namespace FpsDemo.Config.Player
 {
     [Serializable]
     public struct LandingShakeSettings
@@ -17,10 +17,21 @@ namespace FpsDemo.Player
         public float shakeRoll;
     }
 
+    [Serializable]
+    public struct DamageShakeSettings
+    {
+        public float duration;
+        public float positionKick;
+        public float pitchKick;
+        public float rollKick;
+        public float rollNoise;
+        public float shakeFrequency;
+    }
+
     [CreateAssetMenu(
-        fileName = "PlayerCameraEffectProfile",
-        menuName = "Camera/Player Camera Effect Profile")]
-    public class PlayerCameraEffectProfile : ScriptableObject
+        fileName = "PlayerCameraEffectConfig",
+        menuName = "Config/Player/Camera Effect")]
+    public class PlayerCameraEffectConfig : ScriptableObject
     {
         public float minLandingSpeed = 2f;
         public float heavyLandingSpeed = 12f;
@@ -52,5 +63,16 @@ namespace FpsDemo.Player
         [Header("移动侧倾")]
         public float moveTiltAngle = 0.3f;
         public float moveTiltSpeed = 4f;
+
+        [Header("Damage Shake")]
+        public DamageShakeSettings damageShake = new DamageShakeSettings
+        {
+            duration = 0.16f,
+            positionKick = 0.06f,
+            pitchKick = 1.2f,
+            rollKick = 0.8f,
+            rollNoise = 0.25f,
+            shakeFrequency = 16f
+        };
     }
 }

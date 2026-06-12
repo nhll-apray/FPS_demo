@@ -1,18 +1,24 @@
-namespace FpsDemo.Game
+namespace FpsDemo.Config
 {
     public static class GameResourcePaths
     {
-        public static class Data
+        public static class Config
         {
             public static class Player
             {
-                public const string DefaultCameraEffectProfile = "Player/DefaultPlayerCameraEffectProfile";
+                public const string DefaultCameraEffect = "Player/DefaultPlayerCameraEffectProfile";
             }
 
             public static class Weapon
             {
-                public const string GrenadeAltFireData = "Weapon/GrenadeAltFireData";
-                public const string HitscanWeaponDataAK47 = "Weapon/HitscanWeaponData_AK47";
+                public const string GrenadeAltFire = "Weapon/GrenadeAltFireData";
+                public const string HitscanWeaponAK47 = "Weapon/HitscanWeaponData_AK47";
+            }
+
+            public static class Enemy
+            {
+                public const string GoblinMelee = "Enemy/GoblinMeleeData";
+                public const string ElfRanged = "Enemy/ElfRangedData";
             }
         }
 
@@ -21,11 +27,14 @@ namespace FpsDemo.Game
             public static class Enemy
             {
                 public const string EnemyDum = "Enemy/EnemyDum";
+                public const string EnemyGoblin = "Enemy/Enemy_Goblin";
+                public const string EnemyRangedElf = "Enemy/Enemy_Ranged_Elf";
             }
 
             public static class Projectiles
             {
                 public const string HandGrenade = "Projectiles/Hand_Grenade_Prefab";
+                public const string EnemyEnergyBall = "Projectiles/Enemy_Energy_Ball";
             }
 
             public static class VFX

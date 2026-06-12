@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
-using FpsDemo.Game;
 using UnityEngine.Serialization;
 
-namespace FpsDemo.Weapon
+namespace FpsDemo.Config.Weapon
 {
-    [CreateAssetMenu(fileName = "HitscanWeaponData", menuName = "Weapon/HitscanWeaponData", order = 0)]
-    public class HitscanWeaponData : WeaponData
+    [CreateAssetMenu(fileName = "HitscanWeaponConfig", menuName = "Config/Weapon/Hitscan Weapon", order = 0)]
+    public class HitscanWeaponConfig : WeaponConfig
     {
         [SerializeField] private int damage = 10;
         [SerializeField] private float critDamage = 50f;
@@ -25,22 +24,16 @@ namespace FpsDemo.Weapon
         [Range(0f, 1f)]
         [SerializeField] private float accurateRecoilMultiplier = 0.2f;
         [SerializeField] private int recoilRampShots = 4;
-
-        private AudioClip _shootSound;
-        private AudioClip _reloadSound;
+        [SerializeField] private string shootSfxPath = GameResourcePaths.Audio.Sfx.Weapon.AK47.Shoot;
+        [SerializeField] private string reloadSfxPath = GameResourcePaths.Audio.Sfx.Weapon.AK47.Reload;
         
         public int Damage => damage;
         public float CritDamage => critDamage;
         public float ReloadDuration => reloadDuration;
         public float Range => range;
         public float FireInterval => fireInterval;
-        public AudioClip ShootSound => _shootSound != null
-            ? _shootSound
-            : _shootSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Weapon.AK47.Shoot);
-
-        public AudioClip ReloadSound => _reloadSound != null
-            ? _reloadSound
-            : _reloadSound = GameResources.LoadSfx(GameResourcePaths.Audio.Sfx.Weapon.AK47.Reload);
+        public string ShootSfxPath => shootSfxPath;
+        public string ReloadSfxPath => reloadSfxPath;
         
         public float RecoilPitch => recoilPitch;
         public float RecoilYaw => recoilYaw;

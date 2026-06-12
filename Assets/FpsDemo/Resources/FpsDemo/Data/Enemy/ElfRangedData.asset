@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34b8cb6c33a5624f841f57a2e457c7f, type: 3}
+  m_Name: ElfRangedData
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  moveSpeed: 3
+  acceleration: 10
+  angularSpeed: 540
+  stoppingDistance: 8
+  detectionRange: 45
+  attackRange: 30
+  preferredRange: 20
+  attackCooldown: 1.2
+  attackWindup: 0.6
+  repathInterval: 0.2
+  faceTargetSpeed: 12
+  lineOfSightMask:
+    serializedVersion: 2
+    m_Bits: 64
+  lineOfSightTargetHeight: 1.2
+  lostLineOfSightStoppingDistance: 1.5
+  projectileDamage: 12
+  projectileSpeed: 25
+  projectileRadius: 0.8
+  projectileLifetime: 7
+  projectileHitMask:
+    serializedVersion: 2
+    m_Bits: 64
+  projectilePrefabPath: Projectiles/Enemy_Energy_Ball

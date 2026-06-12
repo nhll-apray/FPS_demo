@@ -1,7 +1,7 @@
-﻿using System;
+using FpsDemo.Combat;
 using FpsDemo.Game;
-using FpsDemo.Weapon;
 using FpsDemo.Player;
+using FpsDemo.Weapon;
 using UnityEngine;
 
 namespace FpsDemo.UI
@@ -10,13 +10,23 @@ namespace FpsDemo.UI
     {
         private PlayerEntity _player;
         private WeaponInventory _weaponInventory;
+        private Health _health;
 
         [SerializeField] private WeaponHUD weaponHUD;
-        
+        [SerializeField] private PlayerHealthHUD healthHUD;
+        [SerializeField] private PlayerDamageOverlayHUD damageOverlayHUD;
+
         private void Start()
         {
-            _player = GameManager.Instance.CurrentPlayer;
+            _player = GameManager.Instance != null ? GameManager.Instance.CurrentPlayer : null;
+            if (_player == null)
+            {
+                Debug.LogWarning("PlayerHUD could not find the current player.", this);
+                return;
+            }
+
             _weaponInventory = _player.WeaponInventory;
+            _health = _player.GetComponent<Health>();
             Bind();
         }
 
@@ -25,6 +35,16 @@ namespace FpsDemo.UI
             if (weaponHUD != null)
             {
                 weaponHUD.Bind(_weaponInventory);
+            }
+
+            if (healthHUD != null)
+            {
+                healthHUD.Bind(_health);
+            }
+
+            if (damageOverlayHUD != null)
+            {
+                damageOverlayHUD.Bind(_player);
             }
         }
     }

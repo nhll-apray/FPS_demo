@@ -16,8 +16,8 @@ namespace FpsDemo.Combat
             private set
             {
                 int healthAfter = Mathf.Clamp(value, 0, MaxHealth);
-                OnHealthChanged?.Invoke(healthAfter, MaxHealth);
                 currentHealth = healthAfter;
+                OnHealthChanged?.Invoke(currentHealth, MaxHealth);
                 if (currentHealth <= 0)
                 {
                     OnDied?.Invoke();
@@ -35,16 +35,27 @@ namespace FpsDemo.Combat
             if (IsDead)
                 return DamageResult.None;
             int preHealth = CurrentHealth;
-            CurrentHealth -= damageInfo.damage;
-            int damage = Math.Max(0, preHealth - CurrentHealth) ;
-            DamageResult damageResult = new DamageResult(damage, damageInfo.attacker, gameObject, IsDead);
+            int healthAfterDamage = Mathf.Clamp(CurrentHealth - damageInfo.damage, 0, MaxHealth);
+            int damage = Math.Max(0, preHealth - healthAfterDamage);
+            bool isKilled = healthAfterDamage <= 0;
+
+            CurrentHealth = healthAfterDamage;
+            DamageResult damageResult = new DamageResult(damage, damageInfo.attacker, gameObject, isKilled);
             return damageResult;
         }
         
 
         public void ResetHealth()
         {
-            currentHealth = MaxHealth;
+            CurrentHealth = MaxHealth;
+        }
+
+        public void SetMaxHealth(int maxHealth, bool resetCurrentHealth = true)
+        {
+            MaxHealth = Mathf.Max(1, maxHealth);
+            CurrentHealth = resetCurrentHealth
+                ? MaxHealth
+                : Mathf.Clamp(CurrentHealth, 0, MaxHealth);
         }
     }
 }

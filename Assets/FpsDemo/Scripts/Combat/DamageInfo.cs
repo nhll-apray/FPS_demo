@@ -6,7 +6,8 @@ namespace FpsDemo.Combat
     {
         Hitscan,
         Projectile,
-        Explosion
+        Explosion,
+        Melee
     }
     public readonly struct DamageInfo
     {

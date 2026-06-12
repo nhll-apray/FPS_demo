@@ -35,8 +35,8 @@ namespace FpsDemo.Weapon
         {
             _animator = GetComponent<Animator>();
             _hitscanWeapon = GetComponent<HitscanWeapon>();
-            _reloadSpeed = reloadClip.length / _hitscanWeapon.hitscanWeaponData.ReloadDuration;
-            _fireSpeed = fireClip.length / _hitscanWeapon.hitscanWeaponData.FireInterval;
+            _reloadSpeed = reloadClip.length / _hitscanWeapon.hitscanWeaponConfig.ReloadDuration;
+            _fireSpeed = fireClip.length / _hitscanWeapon.hitscanWeaponConfig.FireInterval;
         }
 
         private void OnEnable()

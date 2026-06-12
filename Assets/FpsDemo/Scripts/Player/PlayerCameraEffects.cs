@@ -1,16 +1,18 @@
-ï»¿using FpsDemo.Game;
+using FpsDemo.Game;
 using FpsDemo.Combat;
+using FpsDemo.Config.Player;
 using UnityEngine;
 
 namespace FpsDemo.Player
 {
     public class PlayerCameraEffects
     {
-        //è½åœ°æŒ¯åŠ¨
+        //ÂäµØÕñ¶¯
         private readonly PlayerLandingShake _landingShake = new PlayerLandingShake();
         private readonly PlayerCameraRecoil _recoil = new PlayerCameraRecoil();
+        private readonly PlayerDamageShake _damageShake = new PlayerDamageShake();
     
-        private PlayerCameraEffectProfile _profile;
+        private PlayerCameraEffectConfig _config;
         private bool _isEnabled;
 
         public Vector2 AimRotationOffset => _recoil.AimRotationOffset;
@@ -19,9 +21,9 @@ namespace FpsDemo.Player
     
         private float _currentMoveTilt;
 
-        public PlayerCameraEffects(PlayerCameraEffectProfile profile)
+        public PlayerCameraEffects(PlayerCameraEffectConfig config)
         {
-            _profile = profile;
+            _config = config;
         }
 
         public void Enable()
@@ -56,8 +58,9 @@ namespace FpsDemo.Player
         {
             UpdateMoveTilt(deltaTime, moveInput);
             _landingShake.Tick(deltaTime);
-            PositionOffset = _landingShake.PositionOffset;
-            RotationOffset = new Vector3(0f, 0f, _currentMoveTilt) + _landingShake.RotationOffset;
+            _damageShake.Tick(deltaTime);
+            PositionOffset = _landingShake.PositionOffset + _damageShake.PositionOffset;
+            RotationOffset = new Vector3(0f, 0f, _currentMoveTilt) + _landingShake.RotationOffset + _damageShake.RotationOffset;
         }
 
         public Vector2 CommitAimRecoil()
@@ -80,31 +83,37 @@ namespace FpsDemo.Player
             _recoil.End();
         }
 
+        public void PlayDamageShake(float intensity)
+        {
+            _damageShake.Play(intensity, _config);
+        }
+
         public void StopAll()
         {
             _landingShake.Stop();
             _recoil.Stop();
+            _damageShake.Stop();
 
             PositionOffset = Vector3.zero;
             RotationOffset = Vector3.zero;
         }
     
-        //ç§»åŠ¨ä¾§å€¾
+        //ÒÆ¶¯²àÇã
         private void UpdateMoveTilt(float deltaTime, Vector2 moveInput)
         {
-            if (_profile == null)
+            if (_config == null)
             {
                 _currentMoveTilt = 0f;
                 return;
             }
 
-            float targetTilt = -moveInput.x * _profile.moveTiltAngle;
-            _currentMoveTilt = Mathf.Lerp(_currentMoveTilt, targetTilt, _profile.moveTiltSpeed * deltaTime);
+            float targetTilt = -moveInput.x * _config.moveTiltAngle;
+            _currentMoveTilt = Mathf.Lerp(_currentMoveTilt, targetTilt, _config.moveTiltSpeed * deltaTime);
         }
 
         private void OnPlayerLand(PlayerLandEvent evt)
         {
-            _landingShake.Play(evt.velocity, _profile);
+            _landingShake.Play(evt.velocity, _config);
         }
     }
 }

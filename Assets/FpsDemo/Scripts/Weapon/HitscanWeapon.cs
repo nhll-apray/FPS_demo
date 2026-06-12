@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections;
 using FpsDemo.Combat;
+using FpsDemo.Config;
+using FpsDemo.Config.Weapon;
 using FpsDemo.Game;
 using UnityEngine;
 
@@ -8,14 +10,16 @@ namespace FpsDemo.Weapon
 {
     public class HitscanWeapon : WeaponBase
     {
-        private HitscanWeaponData _hitscanWeaponData;
+        private HitscanWeaponConfig _hitscanWeaponConfig;
+        private AudioClip _shootSound;
+        private AudioClip _reloadSound;
 
-        public HitscanWeaponData HitscanWeaponData => _hitscanWeaponData != null
-            ? _hitscanWeaponData
-            : _hitscanWeaponData = GameResources.LoadData<HitscanWeaponData>(GameResourcePaths.Data.Weapon.HitscanWeaponDataAK47);
+        public HitscanWeaponConfig HitscanWeaponConfig => _hitscanWeaponConfig != null
+            ? _hitscanWeaponConfig
+            : _hitscanWeaponConfig = GameResources.LoadConfig<HitscanWeaponConfig>(GameResourcePaths.Config.Weapon.HitscanWeaponAK47);
 
-        public HitscanWeaponData hitscanWeaponData => HitscanWeaponData;
-        public override WeaponData WeaponData => HitscanWeaponData;
+        public HitscanWeaponConfig hitscanWeaponConfig => HitscanWeaponConfig;
+        public override WeaponConfig WeaponConfig => HitscanWeaponConfig;
 
         enum WeaponState
         {
@@ -101,7 +105,7 @@ namespace FpsDemo.Weapon
             if (CurrentAmmo > 0)
             {
                 Fire();
-                _nextFireTime = Time.time + hitscanWeaponData.FireInterval;
+                _nextFireTime = Time.time + hitscanWeaponConfig.FireInterval;
             }
             else
             {
@@ -113,9 +117,10 @@ namespace FpsDemo.Weapon
         {
             CurrentAmmo--;
 
-            if (audioSource != null && hitscanWeaponData.ShootSound != null)
+            AudioClip shootSound = GetShootSound();
+            if (audioSource != null && shootSound != null)
             {
-                audioSource.PlayOneShot(hitscanWeaponData.ShootSound);
+                audioSource.PlayOneShot(shootSound);
             }
             
             OnFiredStarted?.Invoke();
@@ -127,41 +132,55 @@ namespace FpsDemo.Weapon
                 IDamageable damageable = aimTarget.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
-                    DamageSystem.ApplyDamage(damageable, new DamageInfo(hitscanWeaponData.Damage, Owner));
+                    DamageSystem.ApplyDamage(damageable, new DamageInfo(hitscanWeaponConfig.Damage, Owner));
                 }
             }
             
-            float recoilScale = hitscanWeaponData.GetRecoilScale(_shotsFiredInBurst);
+            float recoilScale = hitscanWeaponConfig.GetRecoilScale(_shotsFiredInBurst);
             _shotsFiredInBurst++;
-            float pitchRecoil = hitscanWeaponData.RecoilPitch * recoilScale;
-            float yawRecoil = hitscanWeaponData.RecoilYaw * recoilScale;
+            float pitchRecoil = hitscanWeaponConfig.RecoilPitch * recoilScale;
+            float yawRecoil = hitscanWeaponConfig.RecoilYaw * recoilScale;
 
             cameraRecoilReceiver?.ApplyCameraRecoil(new CameraRecoilSettings
             {
                 pitchPerShot = pitchRecoil,
                 yawRandomRange = yawRecoil,
                 applySpeed = GetRecoilApplySpeed(pitchRecoil, yawRecoil),
-                recoverySpeed = hitscanWeaponData.RecoilRecoverySpeed,
-                recoveryDelay = hitscanWeaponData.RecoilRecoveryDelay,
-                maxQueuedPitch = hitscanWeaponData.MaxRecoilPitch,
-                maxQueuedYaw = hitscanWeaponData.MaxRecoilYaw
+                recoverySpeed = hitscanWeaponConfig.RecoilRecoverySpeed,
+                recoveryDelay = hitscanWeaponConfig.RecoilRecoveryDelay,
+                maxQueuedPitch = hitscanWeaponConfig.MaxRecoilPitch,
+                maxQueuedYaw = hitscanWeaponConfig.MaxRecoilYaw
             });
+        }
+
+        private AudioClip GetShootSound()
+        {
+            return _shootSound != null
+                ? _shootSound
+                : _shootSound = GameResources.LoadSfx(hitscanWeaponConfig.ShootSfxPath);
+        }
+
+        private AudioClip GetReloadSound()
+        {
+            return _reloadSound != null
+                ? _reloadSound
+                : _reloadSound = GameResources.LoadSfx(hitscanWeaponConfig.ReloadSfxPath);
         }
 
         private float GetRecoilApplySpeed(float pitchRecoil, float yawRecoil)
         {
             float maxSingleShotRecoil = Mathf.Max(Mathf.Abs(pitchRecoil), Mathf.Abs(yawRecoil));
             if (maxSingleShotRecoil <= 0f)
-                return hitscanWeaponData.RecoilApplySpeed;
+                return hitscanWeaponConfig.RecoilApplySpeed;
 
-            float applyDuration = Mathf.Max(hitscanWeaponData.FireInterval, MinRecoilApplyDuration);
+            float applyDuration = Mathf.Max(hitscanWeaponConfig.FireInterval, MinRecoilApplyDuration);
             float minApplySpeed = maxSingleShotRecoil / applyDuration;
-            return Mathf.Max(hitscanWeaponData.RecoilApplySpeed, minApplySpeed);
+            return Mathf.Max(hitscanWeaponConfig.RecoilApplySpeed, minApplySpeed);
         }
 
         public GameObject GetAimTarget()
         {
-            if (Physics.Raycast(aimProvider.GetAimRay(), out RaycastHit hit, hitscanWeaponData.Range, LayerMask.GetMask("Enemy")))
+            if (Physics.Raycast(aimProvider.GetAimRay(), out RaycastHit hit, hitscanWeaponConfig.Range, LayerMask.GetMask("Enemy")))
             {
                 return hit.collider.gameObject;
             }
@@ -176,7 +195,7 @@ namespace FpsDemo.Weapon
             if (_currentState == WeaponState.Reloading)
                 return;
 
-            if (CurrentAmmo >= hitscanWeaponData.MaxAmmo)
+            if (CurrentAmmo >= hitscanWeaponConfig.MaxAmmo)
                 return;
 
             StartCoroutine(ReloadRoutine());
@@ -188,18 +207,19 @@ namespace FpsDemo.Weapon
 
             _currentState = WeaponState.Reloading;
 
-            if (audioSource != null && hitscanWeaponData.ReloadSound != null)
+            AudioClip reloadSound = GetReloadSound();
+            if (audioSource != null && reloadSound != null)
             {
-                audioSource.clip = hitscanWeaponData.ReloadSound;
-                audioSource.pitch = hitscanWeaponData.ReloadSound.length / hitscanWeaponData.ReloadDuration;
+                audioSource.clip = reloadSound;
+                audioSource.pitch = reloadSound.length / hitscanWeaponConfig.ReloadDuration;
                 audioSource.Play();
             }
 
             OnReloadStarted?.Invoke();
 
-            yield return new WaitForSeconds(hitscanWeaponData.ReloadDuration);
+            yield return new WaitForSeconds(hitscanWeaponConfig.ReloadDuration);
 
-            CurrentAmmo = hitscanWeaponData.MaxAmmo;
+            CurrentAmmo = hitscanWeaponConfig.MaxAmmo;
 
             if (audioSource != null)
                 audioSource.pitch = 1f;
