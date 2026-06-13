@@ -96,8 +96,7 @@ namespace FpsDemo.Player
             PositionOffset = Vector3.zero;
             RotationOffset = Vector3.zero;
         }
-    
-        //�ƶ�����
+        
         private void UpdateMoveTilt(float deltaTime, Vector2 moveInput)
         {
             if (_config == null)
