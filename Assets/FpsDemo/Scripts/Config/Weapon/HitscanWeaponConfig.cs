@@ -8,13 +8,12 @@ namespace FpsDemo.Config.Weapon
     {
         [SerializeField] private int damage = 10;
         [SerializeField] private float critDamage = 50f;
-        [FormerlySerializedAs("reloadTime")] [SerializeField] private float reloadDuration = 2.5f;
+        [SerializeField] private float reloadDuration = 2.5f;
         [SerializeField] private float range = 100f;
         [SerializeField] private float fireInterval = 0.4f;
         
         [SerializeField] private float recoilPitch = 0.35f;
         [SerializeField] private float recoilYaw = 0.08f;
-        [FormerlySerializedAs("recoilRecoverySpeed")]
         [SerializeField] private float recoilApplySpeed = 18f;
         [SerializeField] private float recoilRecoverySpeed = 8f;
         [SerializeField] private float recoilRecoveryDelay = 0.08f;

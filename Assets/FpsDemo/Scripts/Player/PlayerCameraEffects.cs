@@ -7,7 +7,6 @@ namespace FpsDemo.Player
 {
     public class PlayerCameraEffects
     {
-        //ÂäµØÕñ¶¯
         private readonly PlayerLandingShake _landingShake = new PlayerLandingShake();
         private readonly PlayerCameraRecoil _recoil = new PlayerCameraRecoil();
         private readonly PlayerDamageShake _damageShake = new PlayerDamageShake();
@@ -98,7 +97,7 @@ namespace FpsDemo.Player
             RotationOffset = Vector3.zero;
         }
     
-        //ÒÆ¶¯²àÇã
+        //ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½
         private void UpdateMoveTilt(float deltaTime, Vector2 moveInput)
         {
             if (_config == null)
@@ -113,7 +112,7 @@ namespace FpsDemo.Player
 
         private void OnPlayerLand(PlayerLandEvent evt)
         {
-            _landingShake.Play(evt.velocity, _config);
+            _landingShake.Play(evt.Velocity, _config);
         }
     }
 }

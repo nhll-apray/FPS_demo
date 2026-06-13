@@ -35,12 +35,12 @@ namespace FpsDemo.Combat
             if (IsDead)
                 return DamageResult.None;
             int preHealth = CurrentHealth;
-            int healthAfterDamage = Mathf.Clamp(CurrentHealth - damageInfo.damage, 0, MaxHealth);
+            int healthAfterDamage = Mathf.Clamp(CurrentHealth - damageInfo.Damage, 0, MaxHealth);
             int damage = Math.Max(0, preHealth - healthAfterDamage);
             bool isKilled = healthAfterDamage <= 0;
 
             CurrentHealth = healthAfterDamage;
-            DamageResult damageResult = new DamageResult(damage, damageInfo.attacker, gameObject, isKilled);
+            DamageResult damageResult = new DamageResult(damage, damageInfo.Attacker, gameObject, isKilled);
             return damageResult;
         }
         

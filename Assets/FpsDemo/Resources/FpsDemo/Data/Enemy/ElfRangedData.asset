@@ -35,5 +35,5 @@ MonoBehaviour:
   projectileLifetime: 7
   projectileHitMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   projectilePrefabPath: Projectiles/Enemy_Energy_Ball

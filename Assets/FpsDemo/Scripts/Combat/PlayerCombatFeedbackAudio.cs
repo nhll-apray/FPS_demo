@@ -35,12 +35,12 @@ namespace FpsDemo.Combat
 
         private void OnDamageDealt(DamageDealtEvent eventData)
         {
-            DamageResult result = eventData.damageResult;
+            DamageResult result = eventData.DamageResult;
 
-            if (result.attacker != gameObject)
+            if (result.Attacker != gameObject)
                 return;
 
-            if (result.damageApplied <= 0)
+            if (result.DamageApplied <= 0)
                 return;
 
             PlayFeedback(result);
@@ -48,12 +48,12 @@ namespace FpsDemo.Combat
 
         private void PlayFeedback(DamageResult result)
         {
-            if (result.isKill && _killSound != null)
+            if (result.IsKill && _killSound != null)
             {
                 audioSource.PlayOneShot(_killSound);
             }
 
-            if (result.isHeadshot && _headshotSound != null)
+            if (result.IsHeadshot && _headshotSound != null)
             {
                 audioSource.PlayOneShot(_headshotSound);
             }

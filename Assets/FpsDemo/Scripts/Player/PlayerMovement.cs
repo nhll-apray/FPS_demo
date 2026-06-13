@@ -10,8 +10,12 @@ namespace FpsDemo.Player
         private PlayerInputReader _playerInputReader;
         private CharacterController _characterController;
 
+        private const float SprintForwardInputThreshold = 0.01f;
+
         public bool IsWalking => _playerInputReader != null && _playerInputReader.MoveInput != Vector2.zero && CurrentGround.isGrounded;
-        public bool IsSprinting => IsWalking && _playerInputReader.IsShiftHeld;
+        public bool HasForwardMoveInput => _playerInputReader != null && _playerInputReader.MoveInput.y > SprintForwardInputThreshold;
+        public bool WantsSprint => HasForwardMoveInput && _playerInputReader != null && _playerInputReader.IsShiftHeld;
+        public bool IsSprinting => IsWalking && WantsSprint;
     
         [Header("地面移动")]
         public float walkSpeed = 7f;
@@ -95,7 +99,7 @@ namespace FpsDemo.Player
             //落地
             if (!wasGrounded && CurrentGround.isGrounded)
             {
-                EventManager.Broadcast(new PlayerLandEvent { velocity = Math.Abs(Velocity.y) });
+                EventManager.Broadcast(new PlayerLandEvent { Velocity = Math.Abs(Velocity.y) });
             }
         }
 
@@ -118,7 +122,8 @@ namespace FpsDemo.Player
                 Velocity += airAcceleration * Time.deltaTime * worldSpaceMoveInput;
                 float verticalVelocity = Velocity.y - gravityDownForce * Time.deltaTime;
                 Vector2 horizontalVelocity = new Vector2(Velocity.x, Velocity.z);
-                horizontalVelocity = Vector2.ClampMagnitude(horizontalVelocity, maxAirSpeed);
+                float airSpeedLimit = WantsSprint ? sprintSpeed : maxAirSpeed;
+                horizontalVelocity = Vector2.ClampMagnitude(horizontalVelocity, airSpeedLimit);
                 Velocity = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.y);
             }
         

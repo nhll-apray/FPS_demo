@@ -19,8 +19,8 @@ namespace FpsDemo.Player
     
         private const float MaxLookAngle = 90f;
 
-        private float _cameraPitch = 0f;
-        private float _cameraYaw = 0f;
+        private float _cameraPitch;
+        private float _cameraYaw;
     
         private Vector3 _baseCameraPos;
 

@@ -47,8 +47,7 @@ namespace FpsDemo.Player
 
             if (_timer <= 0f || _duration <= 0f)
                 return;
-
-            //¼ÆËãÂäµØÕñ¶¯
+            
             float elapsed = _duration - _timer;
             float t = Mathf.Clamp01(elapsed / _duration);
             float impactEnvelope = 1f - t;

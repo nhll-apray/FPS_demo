@@ -6,11 +6,11 @@ namespace FpsDemo.Game
 
     public class PlayerLandEvent : GameEvent
     {
-        public float velocity;
+        public float Velocity;
     }
 
     public class DamageDealtEvent : GameEvent
     {
-        public DamageResult damageResult;
+        public DamageResult DamageResult;
     }
 }

@@ -14,9 +14,9 @@ namespace FpsDemo.Combat
             
             DamageResult result = target.TakeDamage(info);
 
-            if (result.damageApplied > 0)
+            if (result.DamageApplied > 0)
             {
-                EventManager.Broadcast(new DamageDealtEvent{ damageResult =  result });
+                EventManager.Broadcast(new DamageDealtEvent{ DamageResult =  result });
             }
 
             return result;

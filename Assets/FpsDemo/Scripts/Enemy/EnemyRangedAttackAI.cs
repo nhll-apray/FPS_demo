@@ -1,63 +1,27 @@
 using System.Collections;
-using FpsDemo.Combat;
 using FpsDemo.Config;
 using FpsDemo.Config.Enemy;
 using FpsDemo.Game;
 using FpsDemo.Player;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace FpsDemo.Enemy
 {
-    [RequireComponent(typeof(NavMeshAgent))]
-    [RequireComponent(typeof(Health))]
-    [RequireComponent(typeof(Animator))]
-    public class EnemyRangedAttackAI : MonoBehaviour
+    public class EnemyRangedAttackAI : EnemyAIBase
     {
         [SerializeField] private RangedEnemyConfig data;
         [SerializeField] private Transform firePoint;
 
-        private NavMeshAgent _agent;
-        private Health _health;
-        private Animator _animator;
-        private Transform _target;
-        private EnemyAIState _state;
         private Coroutine _attackRoutine;
-        private float _nextPathUpdateTime;
         private float _nextAttackTime;
         private bool _hasFiredThisAttack;
         private GameObject _projectilePrefab;
 
-        private bool CanUseAgent => _agent != null && _agent.enabled && _agent.isOnNavMesh;
-
-        private enum EnemyAIState
-        {
-            Idle,
-            Chase,
-            Attack,
-            Dead
-        }
-
-        private static readonly int TriggerAttack = Animator.StringToHash("Attack");
-        private static readonly int TriggerDie = Animator.StringToHash("Die");
-        private static readonly int FloatMoveSpeed = Animator.StringToHash("MoveSpeed");
-
         private void Awake()
         {
-            _agent = GetComponent<NavMeshAgent>();
-            _health = GetComponent<Health>();
-            _animator = GetComponent<Animator>();
-
             if (data == null)
             {
                 data = GameResources.LoadConfig<RangedEnemyConfig>(GameResourcePaths.Config.Enemy.ElfRanged);
-            }
-
-            if (data == null)
-            {
-                Debug.LogError($"{nameof(EnemyRangedAttackAI)} could not load ranged enemy data.", this);
-                enabled = false;
-                return;
             }
 
             if (firePoint == null)
@@ -67,28 +31,12 @@ namespace FpsDemo.Enemy
 
             firePoint ??= transform;
 
-            ApplyStats();
-        }
-
-        private void OnEnable()
-        {
-            if (_health != null)
-            {
-                _health.OnDied += HandleDied;
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (_health != null)
-            {
-                _health.OnDied -= HandleDied;
-            }
+            InitializeEnemyAI(data, $"{nameof(EnemyRangedAttackAI)} could not load ranged enemy config.");
         }
 
         private void Update()
         {
-            if (_health != null && _health.IsDead)
+            if (IsDead)
             {
                 return;
             }
@@ -99,7 +47,7 @@ namespace FpsDemo.Enemy
                 return;
             }
 
-            float sqrDistance = GetPlanarSqrDistance(_target.position);
+            float sqrDistance = GetPlanarSqrDistance(Target.position);
             if (sqrDistance > data.DetectionRange * data.DetectionRange)
             {
                 EnterIdle();
@@ -127,66 +75,10 @@ namespace FpsDemo.Enemy
             EnterAttack();
         }
 
-        private bool TryAcquireTarget()
-        {
-            if (_target != null)
-            {
-                return true;
-            }
-
-            PlayerEntity player = GameManager.Instance != null
-                ? GameManager.Instance.CurrentPlayer
-                : null;
-
-            if (player == null)
-            {
-                player = Object.FindFirstObjectByType<PlayerEntity>();
-            }
-
-            if (player == null)
-            {
-                return false;
-            }
-
-            _target = player.transform;
-            return _target != null;
-        }
-
-        private void EnterIdle()
-        {
-            SetState(EnemyAIState.Idle);
-            StopAgent(clearPath: true);
-            _animator.SetFloat(FloatMoveSpeed, 0f);
-        }
-
-        private void EnterChase(float stoppingDistance)
-        {
-            SetState(EnemyAIState.Chase);
-
-            if (!CanUseAgent)
-            {
-                FaceTarget();
-                return;
-            }
-
-            _agent.stoppingDistance = Mathf.Max(0f, stoppingDistance);
-            _agent.isStopped = false;
-            _animator.SetFloat(FloatMoveSpeed, _agent.velocity.magnitude);
-
-            if (!_agent.hasPath || Time.time >= _nextPathUpdateTime)
-            {
-                _agent.SetDestination(_target.position);
-                _nextPathUpdateTime = Time.time + data.RepathInterval;
-            }
-        }
-
         private void EnterAttack()
         {
-            SetState(EnemyAIState.Attack);
             SetAgentStoppingDistance(data.StoppingDistance);
-            StopAgent(clearPath: false);
-            _animator.SetFloat(FloatMoveSpeed, 0f);
-            FaceTarget();
+            EnterAttackState();
 
             if (Time.time < _nextAttackTime || _attackRoutine != null)
             {
@@ -200,7 +92,7 @@ namespace FpsDemo.Enemy
         private IEnumerator AttackRoutine()
         {
             _hasFiredThisAttack = false;
-            _animator.SetTrigger(TriggerAttack);
+            TriggerAttackAnimation();
 
             if (data.AttackWindup > 0f)
             {
@@ -215,14 +107,20 @@ namespace FpsDemo.Enemy
             _attackRoutine = null;
         }
 
-        public void AnimationEvent_FireProjectile()
+        public void AnimationEvent_DealAttackDamage()
         {
             TryFireProjectile();
         }
 
-        public void AnimationEvent_DealAttackDamage()
+        protected override void HandleDied()
         {
-            TryFireProjectile();
+            if (_attackRoutine != null)
+            {
+                StopCoroutine(_attackRoutine);
+                _attackRoutine = null;
+            }
+
+            base.HandleDied();
         }
 
         private void TryFireProjectile()
@@ -232,12 +130,12 @@ namespace FpsDemo.Enemy
                 return;
             }
 
-            if (_health != null && _health.IsDead)
+            if (IsDead)
             {
                 return;
             }
 
-            if (_target == null || !IsTargetInAttackRange() || !HasLineOfSightToTarget())
+            if (Target == null || !IsTargetInAttackRange() || !HasLineOfSightToTarget())
             {
                 return;
             }
@@ -269,65 +167,14 @@ namespace FpsDemo.Enemy
             }
         }
 
-        private void HandleDied()
-        {
-            SetState(EnemyAIState.Dead);
-            StopAgent(clearPath: true);
-            _animator.SetTrigger(TriggerDie);
-        }
-
-        private void StopAgent(bool clearPath)
-        {
-            if (!CanUseAgent)
-            {
-                return;
-            }
-
-            _agent.isStopped = true;
-            if (clearPath && _agent.hasPath)
-            {
-                _agent.ResetPath();
-            }
-        }
-
-        private void FaceTarget()
-        {
-            if (_target == null)
-            {
-                return;
-            }
-
-            Vector3 direction = _target.position - transform.position;
-            direction.y = 0f;
-            if (direction.sqrMagnitude <= 0.0001f)
-            {
-                return;
-            }
-
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, data.FaceTargetSpeed * Time.deltaTime);
-        }
-
-        private float GetPlanarSqrDistance(Vector3 position)
-        {
-            Vector3 offset = position - transform.position;
-            offset.y = 0f;
-            return offset.sqrMagnitude;
-        }
-
         private bool IsTargetInAttackRange()
         {
-            if (_target == null)
-            {
-                return false;
-            }
-
-            return GetPlanarSqrDistance(_target.position) <= data.AttackRange * data.AttackRange;
+            return IsTargetInRange(data.AttackRange);
         }
 
         private bool HasLineOfSightToTarget()
         {
-            if (_target == null)
+            if (Target == null)
             {
                 return false;
             }
@@ -353,78 +200,23 @@ namespace FpsDemo.Enemy
 
         private Vector3 GetTargetLineOfSightPoint()
         {
-            return _target.position + Vector3.up * Mathf.Max(0f, data.LineOfSightTargetHeight);
+            return Target.position + Vector3.up * Mathf.Max(0f, data.LineOfSightTargetHeight);
         }
 
         private bool IsTargetCollider(Collider hitCollider)
         {
-            if (hitCollider == null || _target == null)
+            if (hitCollider == null || Target == null)
             {
                 return false;
             }
 
-            if (hitCollider.transform == _target || hitCollider.transform.IsChildOf(_target))
+            if (hitCollider.transform == Target || hitCollider.transform.IsChildOf(Target))
             {
                 return true;
             }
 
             PlayerEntity player = hitCollider.GetComponentInParent<PlayerEntity>();
-            return player != null && player.transform == _target;
-        }
-
-        private static Transform FindChildByName(Transform root, string childName)
-        {
-            if (root == null)
-            {
-                return null;
-            }
-
-            Transform[] children = root.GetComponentsInChildren<Transform>(true);
-            for (int i = 0; i < children.Length; i++)
-            {
-                if (children[i].name == childName)
-                {
-                    return children[i];
-                }
-            }
-
-            return null;
-        }
-
-        private void SetState(EnemyAIState state)
-        {
-            if (_state == state)
-            {
-                return;
-            }
-
-            _state = state;
-        }
-
-        private void ApplyStats()
-        {
-            if (_health != null)
-            {
-                _health.SetMaxHealth(data.MaxHealth);
-            }
-
-            if (_agent == null)
-            {
-                return;
-            }
-
-            _agent.speed = data.MoveSpeed;
-            _agent.acceleration = data.Acceleration;
-            _agent.angularSpeed = data.AngularSpeed;
-            SetAgentStoppingDistance(data.StoppingDistance);
-        }
-
-        private void SetAgentStoppingDistance(float stoppingDistance)
-        {
-            if (_agent != null)
-            {
-                _agent.stoppingDistance = Mathf.Max(0f, stoppingDistance);
-            }
+            return player != null && player.transform == Target;
         }
 
         private GameObject GetProjectilePrefab()

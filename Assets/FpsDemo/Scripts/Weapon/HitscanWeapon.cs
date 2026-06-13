@@ -16,7 +16,7 @@ namespace FpsDemo.Weapon
 
         public HitscanWeaponConfig HitscanWeaponConfig => _hitscanWeaponConfig != null
             ? _hitscanWeaponConfig
-            : _hitscanWeaponConfig = GameResources.LoadConfig<HitscanWeaponConfig>(GameResourcePaths.Config.Weapon.HitscanWeaponAK47);
+            : _hitscanWeaponConfig = GameResources.LoadConfig<HitscanWeaponConfig>(GameResourcePaths.Config.Weapon.HitscanWeaponAk47);
 
         public HitscanWeaponConfig hitscanWeaponConfig => HitscanWeaponConfig;
         public override WeaponConfig WeaponConfig => HitscanWeaponConfig;
@@ -90,7 +90,7 @@ namespace FpsDemo.Weapon
 
         private void TryFire()
         {
-            if (aimProvider == null)
+            if (AimProvider == null)
                 return;
 
             if (_currentState != WeaponState.Firing)
@@ -118,9 +118,9 @@ namespace FpsDemo.Weapon
             CurrentAmmo--;
 
             AudioClip shootSound = GetShootSound();
-            if (audioSource != null && shootSound != null)
+            if (AudioSource != null && shootSound != null)
             {
-                audioSource.PlayOneShot(shootSound);
+                AudioSource.PlayOneShot(shootSound);
             }
             
             OnFiredStarted?.Invoke();
@@ -141,7 +141,7 @@ namespace FpsDemo.Weapon
             float pitchRecoil = hitscanWeaponConfig.RecoilPitch * recoilScale;
             float yawRecoil = hitscanWeaponConfig.RecoilYaw * recoilScale;
 
-            cameraRecoilReceiver?.ApplyCameraRecoil(new CameraRecoilSettings
+            CameraRecoilReceiver?.ApplyCameraRecoil(new CameraRecoilSettings
             {
                 pitchPerShot = pitchRecoil,
                 yawRandomRange = yawRecoil,
@@ -180,7 +180,7 @@ namespace FpsDemo.Weapon
 
         public GameObject GetAimTarget()
         {
-            if (Physics.Raycast(aimProvider.GetAimRay(), out RaycastHit hit, hitscanWeaponConfig.Range, LayerMask.GetMask("Enemy")))
+            if (Physics.Raycast(AimProvider.GetAimRay(), out RaycastHit hit, hitscanWeaponConfig.Range, LayerMask.GetMask("Enemy")))
             {
                 return hit.collider.gameObject;
             }
@@ -208,11 +208,11 @@ namespace FpsDemo.Weapon
             _currentState = WeaponState.Reloading;
 
             AudioClip reloadSound = GetReloadSound();
-            if (audioSource != null && reloadSound != null)
+            if (AudioSource != null && reloadSound != null)
             {
-                audioSource.clip = reloadSound;
-                audioSource.pitch = reloadSound.length / hitscanWeaponConfig.ReloadDuration;
-                audioSource.Play();
+                AudioSource.clip = reloadSound;
+                AudioSource.pitch = reloadSound.length / hitscanWeaponConfig.ReloadDuration;
+                AudioSource.Play();
             }
 
             OnReloadStarted?.Invoke();
@@ -221,8 +221,8 @@ namespace FpsDemo.Weapon
 
             CurrentAmmo = hitscanWeaponConfig.MaxAmmo;
 
-            if (audioSource != null)
-                audioSource.pitch = 1f;
+            if (AudioSource != null)
+                AudioSource.pitch = 1f;
 
             bool shouldResumeFire = _fireInputHeld && CurrentAmmo > 0;
 
@@ -253,7 +253,7 @@ namespace FpsDemo.Weapon
                 _shotsFiredInBurst = 0;
             }
 
-            cameraRecoilReceiver?.BeginCameraRecoil();
+            CameraRecoilReceiver?.BeginCameraRecoil();
         }
 
         private void StopFiringStateWithoutClearingInput()
@@ -262,7 +262,7 @@ namespace FpsDemo.Weapon
                 return;
 
             _currentState = WeaponState.Idle;
-            cameraRecoilReceiver?.EndCameraRecoil();
+            CameraRecoilReceiver?.EndCameraRecoil();
             OnFiredStoped?.Invoke();
         }
         

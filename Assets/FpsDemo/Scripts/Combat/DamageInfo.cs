@@ -11,10 +11,10 @@ namespace FpsDemo.Combat
     }
     public readonly struct DamageInfo
     {
-        public readonly int damage;
-        public readonly GameObject attacker;
-        public readonly DamageType damageType;
-        public readonly Vector3 hitPoint;
+        public readonly int Damage;
+        public readonly GameObject Attacker;
+        public readonly DamageType DamageType;
+        public readonly Vector3 HitPoint;
         
         public DamageInfo(int damage, GameObject attacker)
             : this(damage, attacker, DamageType.Hitscan, Vector3.zero)
@@ -23,10 +23,10 @@ namespace FpsDemo.Combat
 
         public DamageInfo(int damage, GameObject attacker, DamageType damageType, Vector3 hitPoint)
         {
-            this.damage = damage;
-            this.attacker = attacker;
-            this.damageType = damageType;
-            this.hitPoint = hitPoint;
+            this.Damage = damage;
+            this.Attacker = attacker;
+            this.DamageType = damageType;
+            this.HitPoint = hitPoint;
         }
     }
 
@@ -34,19 +34,19 @@ namespace FpsDemo.Combat
     {
         public static readonly DamageResult None = new DamageResult(0, null, null, false);
         
-        public readonly int damageApplied;
-        public readonly GameObject attacker;
-        public readonly GameObject target;
-        public readonly bool isKill;
-        public readonly bool isHeadshot;
+        public readonly int DamageApplied;
+        public readonly GameObject Attacker;
+        public readonly GameObject Target;
+        public readonly bool IsKill;
+        public readonly bool IsHeadshot;
         
         public DamageResult(int damage, GameObject attacker, GameObject target, bool isKill, bool isHeadshot = false)
         {
-            this.damageApplied = damage;
-            this.attacker = attacker;
-            this.target = target;
-            this.isKill = isKill;
-            this.isHeadshot = isHeadshot;
+            this.DamageApplied = damage;
+            this.Attacker = attacker;
+            this.Target = target;
+            this.IsKill = isKill;
+            this.IsHeadshot = isHeadshot;
         }
     }
 }

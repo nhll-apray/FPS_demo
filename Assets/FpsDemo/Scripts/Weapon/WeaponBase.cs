@@ -10,11 +10,11 @@ namespace FpsDemo.Weapon
         public Transform muzzle;
         public abstract WeaponConfig WeaponConfig { get; }
         
-        protected Animator animator;
-        protected AudioSource audioSource;
+        protected Animator Animator;
+        protected AudioSource AudioSource;
         public GameObject Owner { get; private set; }
-        protected IAimProvider aimProvider;
-        protected ICameraRecoilReceiver cameraRecoilReceiver;
+        protected IAimProvider AimProvider;
+        protected ICameraRecoilReceiver CameraRecoilReceiver;
         
         [SerializeField]
         protected int currentAmmo;
@@ -37,8 +37,8 @@ namespace FpsDemo.Weapon
         
         private void Awake()
         {
-            animator = GetComponent<Animator>();
-            audioSource = GetComponent<AudioSource>();
+            Animator = GetComponent<Animator>();
+            AudioSource = GetComponent<AudioSource>();
         }
 
         private void Start()
@@ -48,12 +48,14 @@ namespace FpsDemo.Weapon
 
         public virtual void StartFire()
         {
-            if (Owner == null || aimProvider == null) return;
+            if (Owner == null || AimProvider == null) 
+                return;
         }
 
         public virtual void StopFire()
         {
-            if (Owner == null || aimProvider == null) return;
+            if (Owner == null || AimProvider == null) 
+                return;
         }
         
 
@@ -67,30 +69,30 @@ namespace FpsDemo.Weapon
         public void SetOwnerInfo(GameObject go, IAimProvider ap)
         {
             Owner = go;
-            aimProvider = ap;
-            cameraRecoilReceiver = ap as ICameraRecoilReceiver;
+            AimProvider = ap;
+            CameraRecoilReceiver = ap as ICameraRecoilReceiver;
 
-            if (cameraRecoilReceiver == null && go != null)
-                cameraRecoilReceiver = go.GetComponent<ICameraRecoilReceiver>();
+            if (CameraRecoilReceiver == null && go != null)
+                CameraRecoilReceiver = go.GetComponent<ICameraRecoilReceiver>();
         }
         
         public virtual void StartAltFire()
         {
-            if (Owner == null || aimProvider == null)
+            if (Owner == null || AimProvider == null)
                 return;
 
             if (altFire == null)
                 return;
 
-            altFire.TryStart(this, new WeaponUseContext(Owner, aimProvider));
+            altFire.TryStart(this, new WeaponUseContext(Owner, AimProvider));
         }
 
         public virtual void StopAltFire()
         {
-            if (Owner == null || aimProvider == null)
+            if (Owner == null || AimProvider == null)
                 return;
 
-            altFire?.Stop(this, new WeaponUseContext(Owner, aimProvider));
+            altFire?.Stop(this, new WeaponUseContext(Owner, AimProvider));
         }
         public virtual bool CanAltFire => true;
     }

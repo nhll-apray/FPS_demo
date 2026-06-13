@@ -12,7 +12,7 @@ namespace FpsDemo.Config
             public static class Weapon
             {
                 public const string GrenadeAltFire = "Weapon/GrenadeAltFireData";
-                public const string HitscanWeaponAK47 = "Weapon/HitscanWeaponData_AK47";
+                public const string HitscanWeaponAk47 = "Weapon/HitscanWeaponData_AK47";
             }
 
             public static class Enemy
