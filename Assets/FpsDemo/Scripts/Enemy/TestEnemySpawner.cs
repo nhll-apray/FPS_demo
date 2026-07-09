@@ -1,19 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using FpsDemo.Config;
+using FpsDemo.Config.Enemy;
 using FpsDemo.Game;
 using UnityEngine;
 
 namespace FpsDemo.Enemy
 {
-    public class EnemySpawner : MonoBehaviour
+    public class TestEnemySpawner : MonoBehaviour
     {
-        private enum EnemyPrefabType
-        {
-            Goblin,
-            RangedElf
-        }
-
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private EnemyPrefabType enemyPrefabType = EnemyPrefabType.Goblin;
         [SerializeField] private int spawnCount = 2;
@@ -102,11 +96,7 @@ namespace FpsDemo.Enemy
 
         private string GetEnemyPrefabPath()
         {
-            return enemyPrefabType switch
-            {
-                EnemyPrefabType.RangedElf => GameResourcePaths.Prefabs.Enemy.EnemyRangedElf,
-                _ => GameResourcePaths.Prefabs.Enemy.EnemyGoblin
-            };
+            return enemyPrefabType.GetPrefabPath();
         }
     }
 }

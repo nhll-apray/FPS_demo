@@ -1,4 +1,3 @@
-using System.Collections;
 using FpsDemo.Combat;
 using FpsDemo.Config;
 using FpsDemo.Config.Weapon;
@@ -11,15 +10,33 @@ namespace FpsDemo.Weapon
     {
         [SerializeField] private Transform throwOrigin;
 
-        private float _nextReadyTime;
+        private readonly GrenadeAltFireRuntime _runtime = new GrenadeAltFireRuntime();
         private GameObject _grenadePrefab;
+        private WeaponUseContext _activeContext;
+        private GrenadeAltFireConfig _activeConfig;
+
+        public float CooldownRemaining => _runtime.GetCooldownRemaining(Time.time);
+        public float CooldownNormalized => _runtime.GetCooldownNormalized(Time.time);
+        public bool IsCoolingDown => _runtime.IsCoolingDown(Time.time);
+        public bool IsReady => !IsActive && !IsCoolingDown;
+
+        private void Awake()
+        {
+            _runtime.ReleaseRequested += OnRuntimeReleaseRequested;
+            _runtime.Finished += OnRuntimeFinished;
+        }
+
+        private void Update()
+        {
+            _runtime.Tick(Time.time);
+        }
 
         protected override bool CanStart(WeaponBase weapon, WeaponUseContext context)
         {
             GrenadeAltFireConfig grenadeData = GetConfig();
             return grenadeData != null
                    && GetGrenadePrefab(grenadeData) != null
-                   && Time.time >= _nextReadyTime
+                   && _runtime.CanStart(Time.time)
                    && context.aimProvider != null
                    && context.owner != null;
         }
@@ -33,20 +50,13 @@ namespace FpsDemo.Weapon
                 return;
             }
 
-            StartCoroutine(ThrowRoutine(context, grenadeData));
-        }
-
-        private IEnumerator ThrowRoutine(WeaponUseContext context, GrenadeAltFireConfig grenadeData)
-        {
-            yield return new WaitForSeconds(grenadeData.releaseDelay);
-
-            SpawnGrenade(context, grenadeData);
-            NotifyReleased();
-
-            yield return new WaitForSeconds(Mathf.Max(0f, grenadeData.finishDelay - grenadeData.releaseDelay));
-
-            _nextReadyTime = Time.time + grenadeData.cooldown;
-            Finish();
+            _activeContext = context;
+            _activeConfig = grenadeData;
+            bool started = _runtime.TryStart(Time.time, CreateRuntimeSettings(grenadeData));
+            if (!started)
+            {
+                Finish();
+            }
         }
 
         private void SpawnGrenade(WeaponUseContext context, GrenadeAltFireConfig grenadeData)
@@ -82,6 +92,27 @@ namespace FpsDemo.Weapon
             return _grenadePrefab != null
                 ? _grenadePrefab
                 : _grenadePrefab = GameResources.LoadPrefab(grenadeConfig.GrenadePrefabPath);
+        }
+
+        private static GrenadeAltFireRuntimeSettings CreateRuntimeSettings(GrenadeAltFireConfig grenadeConfig)
+        {
+            return new GrenadeAltFireRuntimeSettings(
+                grenadeConfig.releaseDelay,
+                grenadeConfig.finishDelay,
+                grenadeConfig.cooldown);
+        }
+
+        private void OnRuntimeReleaseRequested()
+        {
+            SpawnGrenade(_activeContext, _activeConfig);
+            NotifyReleased();
+        }
+
+        private void OnRuntimeFinished()
+        {
+            _activeContext = default;
+            _activeConfig = null;
+            Finish();
         }
     }
 }

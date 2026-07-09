@@ -43,7 +43,6 @@ namespace FpsDemo.Enemy
 
             if (Config == null)
             {
-                Debug.LogError(missingConfigMessage, this);
                 enabled = false;
                 return;
             }

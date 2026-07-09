@@ -17,13 +17,13 @@ MonoBehaviour:
   acceleration: 10
   angularSpeed: 540
   stoppingDistance: 8
-  detectionRange: 45
-  attackRange: 30
-  preferredRange: 20
+  detectionRange: 110
+  attackRange: 100
   attackCooldown: 1.2
-  attackWindup: 0.6
   repathInterval: 0.2
   faceTargetSpeed: 12
+  preferredRange: 20
+  attackWindup: 0.6
   lineOfSightMask:
     serializedVersion: 2
     m_Bits: 64

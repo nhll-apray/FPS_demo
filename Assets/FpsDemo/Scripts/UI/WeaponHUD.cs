@@ -13,21 +13,30 @@ namespace FpsDemo.UI
         private WeaponInventory _weaponInventory;
         
 
-        private void OnDestory()
+        private void OnDestroy()
         {
-            if (_weaponInventory != null && _weaponInventory.CurrentWeapon != null)
-            {
-                _weaponInventory.CurrentWeapon.OnAmmoChange -= OnAmmoChanged;
-            }
+            UnbindCurrentWeapon();
         }
 
         public void Bind(WeaponInventory weaponInventory)
         {
+            UnbindCurrentWeapon();
             _weaponInventory = weaponInventory;
-            weaponImage.sprite = weaponInventory.CurrentWeapon.WeaponConfig.Icon;
+
             if (_weaponInventory != null && _weaponInventory.CurrentWeapon != null)
             {
-                _weaponInventory.CurrentWeapon.OnAmmoChange += OnAmmoChanged;
+                WeaponBase currentWeapon = _weaponInventory.CurrentWeapon;
+                weaponImage.sprite = currentWeapon.WeaponConfig.Icon;
+                currentWeapon.OnAmmoChange += OnAmmoChanged;
+                RefreshAmmo(currentWeapon.CurrentAmmo, currentWeapon.WeaponConfig.MaxAmmo);
+            }
+        }
+
+        private void UnbindCurrentWeapon()
+        {
+            if (_weaponInventory != null && _weaponInventory.CurrentWeapon != null)
+            {
+                _weaponInventory.CurrentWeapon.OnAmmoChange -= OnAmmoChanged;
             }
         }
 

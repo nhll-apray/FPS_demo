@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using FpsDemo.Combat;
 using FpsDemo.Config;
 using FpsDemo.Config.Weapon;
@@ -11,8 +10,12 @@ namespace FpsDemo.Weapon
     public class HitscanWeapon : WeaponBase
     {
         private HitscanWeaponConfig _hitscanWeaponConfig;
+        private HitscanWeaponRuntime _runtime;
+        private HitscanHitResolver _hitResolver;
         private AudioClip _shootSound;
         private AudioClip _reloadSound;
+
+        private const float MinRecoilApplyDuration = 0.0001f;
 
         public HitscanWeaponConfig HitscanWeaponConfig => _hitscanWeaponConfig != null
             ? _hitscanWeaponConfig
@@ -21,23 +24,8 @@ namespace FpsDemo.Weapon
         public HitscanWeaponConfig hitscanWeaponConfig => HitscanWeaponConfig;
         public override WeaponConfig WeaponConfig => HitscanWeaponConfig;
 
-        enum WeaponState
-        {
-            Idle,
-            Firing,
-            Reloading
-        }
-
-        private WeaponState _currentState;
-
-        public bool IsReloading => _currentState == WeaponState.Reloading;
-        public bool IsFiring => _currentState == WeaponState.Firing;
-
-        private float _nextFireTime;
-        
-        private bool _fireInputHeld;
-        private int _shotsFiredInBurst;
-        private const float MinRecoilApplyDuration = 0.0001f;
+        public bool IsReloading => _runtime != null && _runtime.IsReloading;
+        public bool IsFiring => _runtime != null && _runtime.IsFiring;
 
         public event Action OnFiredStarted;
         public event Action OnFiredStoped;
@@ -46,98 +34,145 @@ namespace FpsDemo.Weapon
 
         private void Update()
         {
-            if (_currentState == WeaponState.Firing)
-            {
-                TryFire();
-            }
+            EnsureRuntime();
+            _runtime.Tick(Time.time, IsAltFiring);
         }
 
         public override void StartFire()
         {
-            _fireInputHeld = true;
-
-            if (IsAltFiring)
-                return;
-            
-            if (IsReloading)
-                return;
-
-            if (_currentState == WeaponState.Firing)
-                return;
-
-            base.StartFire();
-
-            EnterFiringState(resetBurst: true);
-            _nextFireTime = Time.time;
-
-            TryFire();
+            EnsureRuntime();
+            _runtime.StartFire(Time.time, IsAltFiring);
         }
 
         public override void StopFire()
         {
-            _fireInputHeld = false;
-            
-            if (IsReloading)
-                return;
-
-            if (_currentState != WeaponState.Firing)
-                return;
-
-            base.StopFire();
-
-            StopFiringStateWithoutClearingInput();
+            EnsureRuntime();
+            _runtime.StopFire();
         }
 
-        private void TryFire()
+        public override void Reload()
         {
-            if (AimProvider == null)
+            EnsureRuntime();
+            _runtime.Reload(Time.time, IsAltFiring);
+        }
+
+        public override void StartAltFire()
+        {
+            EnsureRuntime();
+
+            if (_runtime.IsReloading)
                 return;
 
-            if (_currentState != WeaponState.Firing)
+            _runtime.InterruptFiringWithoutClearingInput();
+            base.StartAltFire();
+        }
+
+        public GameObject GetAimTarget()
+        {
+            return TryGetDamageHit(out HitscanHitResult hitResult)
+                ? hitResult.HitObject
+                : null;
+        }
+
+        private void EnsureRuntime()
+        {
+            if (_runtime != null)
                 return;
 
-            if (IsReloading)
-                return;
+            _runtime = new HitscanWeaponRuntime(
+                hitscanWeaponConfig.MaxAmmo,
+                hitscanWeaponConfig.FireInterval,
+                hitscanWeaponConfig.ReloadDuration,
+                CanFire);
 
-            if (Time.time < _nextFireTime)
-                return;
+            _runtime.AmmoChanged += OnRuntimeAmmoChanged;
+            _runtime.FiringStateEntered += OnRuntimeFiringStateEntered;
+            _runtime.FiringStateExited += OnRuntimeFiringStateExited;
+            _runtime.FireRequested += OnRuntimeFireRequested;
+            _runtime.ReloadStarted += OnRuntimeReloadStarted;
+            _runtime.ReloadFinished += OnRuntimeReloadFinished;
+            EnsureHitResolver();
 
-            if (CurrentAmmo > 0)
+            if (CurrentAmmo != _runtime.CurrentAmmo)
             {
-                Fire();
-                _nextFireTime = Time.time + hitscanWeaponConfig.FireInterval;
-            }
-            else
-            {
-                StopFiringStateWithoutClearingInput();
+                CurrentAmmo = _runtime.CurrentAmmo;
             }
         }
 
-        private void Fire()
+        private void OnRuntimeAmmoChanged(int previousAmmo, int currentAmmo)
         {
-            CurrentAmmo--;
+            CurrentAmmo = currentAmmo;
+        }
 
+        private void EnsureHitResolver()
+        {
+            if (_hitResolver != null)
+                return;
+
+            _hitResolver = new HitscanHitResolver(LayerMask.GetMask("Enemy"));
+        }
+
+        private bool CanFire()
+        {
+            return AimProvider != null;
+        }
+
+        private void OnRuntimeFiringStateEntered()
+        {
+            CameraRecoilReceiver?.BeginCameraRecoil();
+        }
+
+        private void OnRuntimeFiringStateExited()
+        {
+            CameraRecoilReceiver?.EndCameraRecoil();
+            OnFiredStoped?.Invoke();
+        }
+
+        private void OnRuntimeFireRequested(int shotIndex)
+        {
+            Fire(shotIndex);
+        }
+
+        private void OnRuntimeReloadStarted()
+        {
+            AudioClip reloadSound = GetReloadSound();
+            if (AudioSource != null && reloadSound != null)
+            {
+                AudioSource.clip = reloadSound;
+                AudioSource.pitch = reloadSound.length / hitscanWeaponConfig.ReloadDuration;
+                AudioSource.Play();
+            }
+
+            OnReloadStarted?.Invoke();
+        }
+
+        private void OnRuntimeReloadFinished()
+        {
+            if (AudioSource != null)
+                AudioSource.pitch = 1f;
+
+            OnReloadFinished?.Invoke();
+        }
+
+        private void Fire(int shotIndex)
+        {
             AudioClip shootSound = GetShootSound();
             if (AudioSource != null && shootSound != null)
             {
                 AudioSource.PlayOneShot(shootSound);
             }
-            
+
             OnFiredStarted?.Invoke();
 
-            GameObject aimTarget = GetAimTarget();
-
-            if (aimTarget != null)
+            if (TryGetDamageHit(out HitscanHitResult hitResult))
             {
-                IDamageable damageable = aimTarget.GetComponent<IDamageable>();
-                if (damageable != null)
-                {
-                    DamageSystem.ApplyDamage(damageable, new DamageInfo(hitscanWeaponConfig.Damage, Owner));
-                }
+                int damage = GetDamageForHitZone(hitResult.HitZone);
+                DamageSystem.ApplyDamage(
+                    hitResult.Damageable,
+                    new DamageInfo(damage, Owner, DamageType.Hitscan, hitResult.HitPoint, hitResult.HitZone));
             }
-            
-            float recoilScale = hitscanWeaponConfig.GetRecoilScale(_shotsFiredInBurst);
-            _shotsFiredInBurst++;
+
+            float recoilScale = hitscanWeaponConfig.GetRecoilScale(shotIndex);
             float pitchRecoil = hitscanWeaponConfig.RecoilPitch * recoilScale;
             float yawRecoil = hitscanWeaponConfig.RecoilYaw * recoilScale;
 
@@ -178,101 +213,26 @@ namespace FpsDemo.Weapon
             return Mathf.Max(hitscanWeaponConfig.RecoilApplySpeed, minApplySpeed);
         }
 
-        public GameObject GetAimTarget()
+        private bool TryGetDamageHit(out HitscanHitResult hitResult)
         {
-            if (Physics.Raycast(AimProvider.GetAimRay(), out RaycastHit hit, hitscanWeaponConfig.Range, LayerMask.GetMask("Enemy")))
-            {
-                return hit.collider.gameObject;
-            }
-            return null;
+            hitResult = default;
+
+            if (AimProvider == null)
+                return false;
+
+            EnsureHitResolver();
+            return _hitResolver.TryResolve(
+                AimProvider.GetAimRay(),
+                hitscanWeaponConfig.Range,
+                out hitResult);
         }
 
-        public override void Reload()
+        private int GetDamageForHitZone(DamageHitZone hitZone)
         {
-            if (IsAltFiring)
-                return;
-            
-            if (_currentState == WeaponState.Reloading)
-                return;
+            if (hitZone == DamageHitZone.Head)
+                return Mathf.Max(0, Mathf.RoundToInt(hitscanWeaponConfig.CritDamage));
 
-            if (CurrentAmmo >= hitscanWeaponConfig.MaxAmmo)
-                return;
-
-            StartCoroutine(ReloadRoutine());
-        }
-
-        private IEnumerator ReloadRoutine()
-        {
-            StopFiringStateWithoutClearingInput();
-
-            _currentState = WeaponState.Reloading;
-
-            AudioClip reloadSound = GetReloadSound();
-            if (AudioSource != null && reloadSound != null)
-            {
-                AudioSource.clip = reloadSound;
-                AudioSource.pitch = reloadSound.length / hitscanWeaponConfig.ReloadDuration;
-                AudioSource.Play();
-            }
-
-            OnReloadStarted?.Invoke();
-
-            yield return new WaitForSeconds(hitscanWeaponConfig.ReloadDuration);
-
-            CurrentAmmo = hitscanWeaponConfig.MaxAmmo;
-
-            if (AudioSource != null)
-                AudioSource.pitch = 1f;
-
-            bool shouldResumeFire = _fireInputHeld && CurrentAmmo > 0;
-
-            if (shouldResumeFire)
-            {
-                EnterFiringState(resetBurst: true);
-                _nextFireTime = Time.time;
-            }
-            else
-            {
-                _currentState = WeaponState.Idle;
-            }
-
-            OnReloadFinished?.Invoke();
-
-            if (shouldResumeFire)
-            {
-                TryFire();
-            }
-        }
-
-        private void EnterFiringState(bool resetBurst)
-        {
-            _currentState = WeaponState.Firing;
-
-            if (resetBurst)
-            {
-                _shotsFiredInBurst = 0;
-            }
-
-            CameraRecoilReceiver?.BeginCameraRecoil();
-        }
-
-        private void StopFiringStateWithoutClearingInput()
-        {
-            if (_currentState != WeaponState.Firing)
-                return;
-
-            _currentState = WeaponState.Idle;
-            CameraRecoilReceiver?.EndCameraRecoil();
-            OnFiredStoped?.Invoke();
-        }
-        
-        public override void StartAltFire()
-        {
-            if (IsReloading)
-                return;
-
-            StopFiringStateWithoutClearingInput();
-            base.StartAltFire();
+            return hitscanWeaponConfig.Damage;
         }
     }
 }

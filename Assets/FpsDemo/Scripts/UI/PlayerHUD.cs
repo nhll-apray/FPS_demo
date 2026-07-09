@@ -13,6 +13,7 @@ namespace FpsDemo.UI
         private Health _health;
 
         [SerializeField] private WeaponHUD weaponHUD;
+        [SerializeField] private GrenadeCooldownHUD grenadeCooldownHUD;
         [SerializeField] private PlayerHealthHUD healthHUD;
         [SerializeField] private PlayerDamageOverlayHUD damageOverlayHUD;
 
@@ -21,7 +22,6 @@ namespace FpsDemo.UI
             _player = GameManager.Instance != null ? GameManager.Instance.CurrentPlayer : null;
             if (_player == null)
             {
-                Debug.LogWarning("PlayerHUD could not find the current player.", this);
                 return;
             }
 
@@ -35,6 +35,11 @@ namespace FpsDemo.UI
             if (weaponHUD != null)
             {
                 weaponHUD.Bind(_weaponInventory);
+            }
+
+            if (grenadeCooldownHUD != null)
+            {
+                grenadeCooldownHUD.Bind(_weaponInventory);
             }
 
             if (healthHUD != null)

@@ -16,7 +16,7 @@ MonoBehaviour:
   maxAmmo: 30
   icon: {fileID: 21300000, guid: dccc05b8d01dde54f88f9910329187c2, type: 3}
   damage: 10
-  critDamage: 50
+  critDamage: 15
   reloadDuration: 2
   range: 100
   fireInterval: 0.10794

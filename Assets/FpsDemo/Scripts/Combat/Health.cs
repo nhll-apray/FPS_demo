@@ -40,7 +40,7 @@ namespace FpsDemo.Combat
             bool isKilled = healthAfterDamage <= 0;
 
             CurrentHealth = healthAfterDamage;
-            DamageResult damageResult = new DamageResult(damage, damageInfo.Attacker, gameObject, isKilled);
+            DamageResult damageResult = new DamageResult(damage, damageInfo.Attacker, gameObject, isKilled, damageInfo.IsHeadshot);
             return damageResult;
         }
         

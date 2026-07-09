@@ -20,6 +20,12 @@ namespace FpsDemo.Config
                 public const string GoblinMelee = "Enemy/GoblinMeleeData";
                 public const string ElfRanged = "Enemy/ElfRangedData";
             }
+
+            public static class Level
+            {
+                public const string Level01 = "Level/Level_01";
+                public const string Level02 = "Level/Level_02";
+            }
         }
 
         public static class Prefabs
